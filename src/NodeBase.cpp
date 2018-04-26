@@ -79,6 +79,28 @@ void CNodeBase::SetNodeID(ndString nodeid)
 	mSNodeInform.sNodeID = nodeid;
 }
 
+/*********************************************************
+函数说明：设置节点密码
+入参说明：无
+出参说明：无
+返回值  ：无
+*********************************************************/
+void CNodeBase::SetNodePWD(ndString pwd)
+{
+	mSNodeInform.sNodePwd = pwd;
+}
+
+
+/*********************************************************
+函数说明：设置出口IP
+入参说明：无
+出参说明：无
+返回值  ：无
+*********************************************************/
+void CNodeBase::SetNodeOutIP(ndString outip)
+{
+	mSNodeInform.sOutIP = outip;
+}
 
 /*********************************************************
 函数说明：获取节点参数信息

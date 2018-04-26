@@ -51,6 +51,10 @@ bool AfxGetNextSrvUrl(SServerInfo &serverInfo);
 //节点编号文件读写
 void AfxWriteNodeID(const char *nodeid);
 char *AfxGetNodeID();
+//节点密码文件读写
+void AfxWriteNodePwd(const char *nodepwd);
+char *AfxGetNodePwd();
+
 //服务列表文件读写
 ndBool AfxGetServerList(list<SServerInfo> &mServers);
 ndBool AfxUpdateServerList(list<SServerInfo> &mServers);
@@ -71,6 +75,10 @@ bool AfxExecCmd(const char *cmd);
 
 //坑宝写ssh key文件目录
 bool AfxKBWriteSSHKey(const char *filename);
+
+//清除所有的EDGE进程
+void AfxCleanAllEdge();
+
 
 
 /*---------------------------------------------------------------------------------------

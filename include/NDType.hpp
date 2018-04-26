@@ -126,30 +126,11 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 #define VPN_DIR_PATH_NAME	"/etc/ian/"
 
 /*---------------------------------------------------------------------------------------
-//升级文件名
------------------------------------------------------------------------------------------*/
-#define UPGRADE_SH_FILE_NAME	"/dev/shm/upgrade.sh"
-
-/*---------------------------------------------------------------------------------------
-//重启脚本文件名
------------------------------------------------------------------------------------------*/
-#define RESTART_SH_FILE_NAME	"/dev/shm/restart.sh"
-
-/*---------------------------------------------------------------------------------------
-//检测启动SuperVPN脚本文件名
------------------------------------------------------------------------------------------*/
-#define CHECK_START_SH_FILE_NAME	"/dev/shm/checkandstartvpn.sh"
-
-
-/*---------------------------------------------------------------------------------------
-//edge结束脚本文件名
------------------------------------------------------------------------------------------*/
-#define CLEAN_EDGE_SH_FILE_NAME	"/dev/shm/stopedge.sh"
-
-/*---------------------------------------------------------------------------------------
 //节点编号文件名
 -----------------------------------------------------------------------------------------*/
 #define NODEID_FILE_NAME	"/etc/ian/node.id"
+#define NODEPWD_FILE_NAME	"/etc/ian/pwd.id"
+
 
 /*---------------------------------------------------------------------------------------
 //服务器列表 IP:Port
@@ -157,6 +138,9 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 #define SERVER_LIST_FILE_NAME	"/etc/ian/server.list"
 //主机名的文件
 #define HOST_FILE_NAME	"/etc/hosts"
+
+#define MD5_SIZE        16 
+#define MD5_STR_LEN     (MD5_SIZE * 2)
 
 /*---------------------------------------------------------------------------------------
 //服务节点VPN版本号
@@ -166,7 +150,7 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 /*---------------------------------------------------------------------------------------
 //用户网关节点VPN版本号
 -----------------------------------------------------------------------------------------*/
-#define SUPER_VPN_CLIENT_VER_NODE 1001
+#define SUPER_VPN_CLIENT_VER_USER 1001
 
 /*---------------------------------------------------------------------------------------
 //系统支持的最大消息队列数
@@ -194,24 +178,48 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 /*---------------------------------------------------------------------------------------
 //curl连接服务器超时时间（秒）
 -----------------------------------------------------------------------------------------*/
-#define VALUE_CURLOPT_CONNECTTIMEOUT 10
+#define VALUE_CURLOPT_CONNECTTIMEOUT 60
 
 /*---------------------------------------------------------------------------------------
 //curl接收数据超时时间（秒）
 -----------------------------------------------------------------------------------------*/
-#define VALUE_CURLOPT_LOW_SPEED_TIME 30
+#define VALUE_CURLOPT_LOW_SPEED_TIME 120
 
 /*---------------------------------------------------------------------------------------
 //设备的key
 -----------------------------------------------------------------------------------------*/
-#define BUILTIN_KEY  "ZEASN2016"
+#define SUPER_VPN_BUILTIN_KEY  "SUPER-VPN"
 
 /*---------------------------------------------------------------------------------------
 //中心服务器地址 http://45.33.58.27:8080
 -----------------------------------------------------------------------------------------*/
-#define VPN_CENTER_USER_URL  "/anywhere/node/unode"
-#define VPN_CENTER_GW_URL  "/anywhere/node/unode"
-#define VPN_CENTER_SRV_URL  "/anywhere/node/pnode"
+//server-node-getip
+#define URL_SERVER_NODE_GETIP "/sng"
+//user-node-getip
+#define URL_USER_NODE_GETIP "/ung"
+
+//server-node-init
+#define URL_SERVER_NODE_INIT "/sni"
+//user-node-init
+#define URL_USER_NODE_INIT "/uni"
+
+//server-node-set
+#define URL_SERVER_NODE_SET "/sns"
+//user-node-set
+#define URL_USER_NODE_SET "/uns"
+
+//run-env-check
+#define URL_NODE_ENV_CHECK "/rec"
+//server-list-inform
+#define URL_NODE_GET_SERVER_LIST "/sli"
+
+//user-node-get-services
+#define URL_NODE_GET_SERVICES "/ungs"
+//user-node-release-services
+#define URL_NODE_RELEASE_SERVICES "/unrs"
+//user-node-notify-services-error
+#define URL_NODE_SERVICES_ERROR "/unnse"
+
 
 /*---------------------------------------------------------------------------------------
 //升级文件的临时文件名
@@ -240,13 +248,15 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 /*---------------------------------------------------------------------------------------
 //数据包Action标签名称定义
 -----------------------------------------------------------------------------------------*/
+#define SUPER_ACTION_SERVER_NODE_GETIP "server-node-getip"
+#define SUPER_ACTION_USER_NODE_GETIP "user-node-getip"
+
 #define SUPER_ACTION_SERVER_NODE_INIT "server-node-init"
 #define SUPER_ACTION_USER_NODE_INIT "user-node-init"
 
 #define SUPER_ACTION_SERVER_NODE_HELLO "server-node-hello"
 #define SUPER_ACTION_USER_NODE_HELLO "user-node-hello"
 #define SUPER_ACTION_SERVICES_CHECK_HELLO "services-check-hello"
-
 
 #define SUPER_ACTION_SERVER_NODE_SET "server-node-set"
 #define SUPER_ACTION_USER_NODE_SET "user-node-set"
@@ -259,8 +269,6 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 #define SUPER_ACTION_NODE_RELEASE_SERVICES "user-node-release-services"
 
 #define SUPER_ACTION_NODE_SERVICES_ERROR "user-node-notify-services-error"
-
-
 
 #define VALUE_CURLOPT_DOWNLOAD_RETRY_TIMES 5
 #define VALUE_CURLOPT_POST_RETRY_TIMES 3

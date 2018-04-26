@@ -24,6 +24,9 @@ public:
 	//获取设备类型
 	ndString GetDeviceType();	
 
+	//系统数据初始化
+	bool InitSystem(char *appname, bool ifOnlyCheckUpgrade);	
+
 	//构造函数
 	CSrvVPNApp();
 	//析构函数

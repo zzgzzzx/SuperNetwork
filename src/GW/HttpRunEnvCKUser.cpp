@@ -21,5 +21,5 @@
 CHttpRunEvnCKUser::CHttpRunEvnCKUser(CNodeBase *node):CHttpRunEvnCK(node)
 {
 	mSrvURL = VPN_CENTER_USER_URL;
-	mLocalVersion = SUPER_VPN_CLIENT_VER_NODE;
+	mLocalVersion = SUPER_VPN_CLIENT_VER_USER;
 }

@@ -22,6 +22,8 @@ public:
 protected:	
 	//Node初始化
 	ndStatus MakeNodeInitReq();
+	//获取IP
+	ndStatus MakeNodeGetIPReq();	
 	//节点配置
 	ndStatus MakeNodeEnvSetReq();
 	ndStatus AnalysisNodeEnvSetRsp();	

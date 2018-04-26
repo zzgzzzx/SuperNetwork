@@ -252,13 +252,49 @@ char *AfxGetNodeID()
 	FILE *pFile;
 	static char nodeid[128]={0};
 
-	if ((pFile = fopen(NODEID_FILE_NAME, "r")) == NULL) return NULL;
+	if ((pFile = fopen(NODEID_FILE_NAME, "r")) == NULL) return nodeid;
 
 	fgets(nodeid, sizeof(nodeid), pFile);
 	fclose(pFile);
 
 	return nodeid;
 }
+
+/*********************************************************
+函数说明：写入节点密码
+入参说明：
+出参说明：
+返回值  ：
+*********************************************************/
+void AfxWriteNodePwd(const char *nodepwd)
+{
+	FILE *pFile;
+
+	if ((pFile = fopen(NODEPWD_FILE_NAME, "w+")) == NULL) return;
+
+	fputs(nodepwd, pFile);
+	fclose(pFile);
+}
+
+/*********************************************************
+函数说明：获取节点密码
+入参说明：
+出参说明：
+返回值  ：
+*********************************************************/
+char *AfxGetNodePwd()
+{
+	FILE *pFile;
+	static char nodepwd[128]={0};
+
+	if ((pFile = fopen(NODEPWD_FILE_NAME, "r")) == NULL) return nodepwd;
+
+	fgets(nodepwd, sizeof(nodepwd), pFile);
+	fclose(pFile);
+
+	return nodepwd;
+}
+
 
 /*********************************************************
 函数说明：获取服务列表
@@ -654,6 +690,22 @@ bool AfxKBWriteSSHKey(const char *filename)
 
 	fputs(content, pFile);
 	fclose(pFile);
+}
+
+/*********************************************************
+函数说明：清除所有的EDGE进程
+入参说明：
+出参说明：
+返回值  ：
+*********************************************************/
+void AfxCleanAllEdge()
+{
+	char cmd[512]={0};
+	sprintf(cmd, "killall %s", EDGE_EXE_FILE_NAME);
+	AfxExecCmd(cmd);
+
+	strcpy(cmd, "killall edge");
+	AfxExecCmd(cmd);	
 }
 
 

@@ -41,7 +41,7 @@ CUserVPNApp::~CUserVPNAppp()
 *********************************************************/
 void CUserVPNApp::ShowVersion()
 {
-	AfxWriteDebugLog("SuperVPN run at [CSuperVPNApp::InitApplication] client node ver=[%d]", SUPER_VPN_CLIENT_VER_NODE);
+	AfxWriteDebugLog("SuperVPN run at [CSuperVPNApp::InitApplication] client node ver=[%d]", SUPER_VPN_CLIENT_VER_USER);
 }
 
 /*********************************************************
@@ -52,7 +52,7 @@ void CUserVPNApp::ShowVersion()
 *********************************************************/
 bool CUserVPNApp::InitSystem(char *appname, bool ifOnlyCheckUpgrade)
 {
-	CSuperVPNApp::InitSystem(appname,ifOnlyCheckUpgrade);
+	if (!CSuperVPNApp::InitSystem(appname,ifOnlyCheckUpgrade)) return false;
 	
 	//启动http服务	
 	if (mHttpSrv.Start()) 
@@ -74,6 +74,17 @@ ndStatus CUserVPNApp::RunEnvCheck(char *appname, bool ifOnlyCheckUpgrade)
 {
 	CHttpRunEvnCKUser httpRunEnvCK(mPNode);
 	return httpRunEnvCK.BeginCheck(appname, ifOnlyCheckUpgrade);
+}
+
+/*********************************************************
+函数说明：获取身份列表
+入参说明：
+出参说明：
+返回值  ：
+*********************************************************/
+CIdentifySet *CUserVPNApp::GetIdentifySet()
+{
+	return &mIdentifySet;
 }
 
 

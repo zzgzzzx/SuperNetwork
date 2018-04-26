@@ -31,6 +31,10 @@ protected:
 	virtual ndStatus MakeNodeInitReq();
 	virtual ndStatus AnalysisNodeInitRsp();
 
+	//获取IP
+	virtual ndStatus MakeNodeGetIPReq();
+	ndStatus AnalysisNodeGetIPRsp();	
+
 	//节点配置
 	virtual ndStatus MakeNodeEnvSetReq();
 	virtual ndStatus AnalysisNodeEnvSetRsp();
@@ -65,6 +69,7 @@ public:
 	ndStatus NodeEnvSet();
 	ndStatus NodeHello();
 	ndStatus NodeInit();
+	ndStatus GetIP();	
 	
 	ndBool GetServerList(list<SServerInfo> &mServers);
 	ndStatus GetIdentifyService(list<SBindInform> &ltBSer);

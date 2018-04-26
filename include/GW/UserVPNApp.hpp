@@ -16,8 +16,13 @@
 //**********************************
 class CUserVPNApp: public CSuperVPNApp
 {
+private:
+	//http服务
+	CHttpSrvThread mHttpSrv;
+	//身份识别管理类
+	CIdentifySet mIdentifySet;			
 public:
-		
+
 	//系统数据初始化
 	bool InitSystem(char *appname, bool ifOnlyCheckUpgrade);
 	
@@ -25,6 +30,8 @@ public:
 	virtual void ShowVersion();
 	//系统运行环境检测
 	ndStatus RunEnvCheck(char *appname, bool ifOnlyCheckUpgrade);	
+	//获取身份列表
+	CIdentifySet *GetIdentifySet();
 
 	//构造函数
 	CUserVPNApp();

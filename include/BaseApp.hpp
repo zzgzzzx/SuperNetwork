@@ -54,10 +54,8 @@ class CSuperVPNApp: public CBaseApp
 {
 private:
 	//消息包队列
-	CMsgFIFO<CPacket*> mPktQueue;	
-	
-	//系统数据初始化
-	bool InitSystem(char *appname, bool ifOnlyCheckUpgrade);
+	CMsgFIFO<CPacket*> mPktQueue;		
+
 	//服务器列表检测
 	ndStatus ServerListCheck();
  	//系统运行环境检测
@@ -77,6 +75,8 @@ private:
 	ndBool GetUpgradeLock();	
 	
 protected:
+	//系统数据初始化
+	bool InitSystem(char *appname, bool ifOnlyCheckUpgrade);	
 	//应用程序初始化工作
 	bool InitApplication(int argc,char *argv[]);
 

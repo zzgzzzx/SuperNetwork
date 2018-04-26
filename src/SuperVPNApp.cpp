@@ -173,9 +173,6 @@ bool CSuperVPNApp::InitSystem(char *appname, bool ifOnlyCheckUpgrade)
 		sleep(8);
 	}
 
-	//增加先清除edge
-	mPNode->CleanAllEdge();
-	
 	//系统运行环境检测(包括edge\iptable\node-version)
 	AfxWriteDebugLog("SuperVPN run at [CSuperVPNApp::InitSystem] RunEnvCheck");
 	while(RunEnvCheck(appname, ifOnlyCheckUpgrade) != ND_SUCCESS)
@@ -195,10 +192,6 @@ bool CSuperVPNApp::InitSystem(char *appname, bool ifOnlyCheckUpgrade)
 	AfxWriteDebugLog("SuperVPN run at [CSuperVPNApp::InitSystem] NodeEnvSet...");
 	if (mPNode->NodeEnvSet() != ND_SUCCESS)
 		return false;
-
-	//定时重启检测
-	if(mPNode->GetNodeInform().lRestartTime > 0)
-		AfxInsertSingleTimer(TIMER_ID_NODE_RESTART_CHECK, mPNode->GetNodeInform().lRestartTime, NodeRestartFunc);	
 
 	//启用Hello服务
 	if (mHelloSrv.Start()) 
@@ -221,10 +214,17 @@ ndStatus CSuperVPNApp::NodeInitCheck()
 	//如果存在，则读出编号，如果不存在，进行申请
 	char *nodeid = AfxGetNodeID();
 	if(nodeid == NULL){
+		ndStatus ret = mPNode->GetIP();
+		if(ret != ND_SUCCESS)
+		{
+			AfxWriteDebugLog("SuperVPN run at [CSuperVPNApp::NodeInitCheck] GetIP Err Ret=[%d]", ret);	
+			return ret;
+		}
 		return mPNode->NodeInit();
 	}
 
 	mPNode->SetNodeID(nodeid);
+	mPNode->SetNodePWD(AfxGetNodePwd());
 	
 	return ND_SUCCESS;
 }

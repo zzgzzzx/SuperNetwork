@@ -80,6 +80,20 @@ ndStatus CNodeGeneral::NodeInit()
 	return ret;
 }
 
+/*********************************************************
+函数说明：获取IP
+入参说明：无
+出参说明：无
+返回值  ：DP_SUCCESS-成功
+          Others-失败
+*********************************************************/
+ndStatus CNodeGeneral::GetIP()
+{
+	ndStatus ret = mPHttpClient->GetIP();
+	AfxWriteDebugLog("SuperVPN run at [CNodeGeneral::NodeEnvSet] Node init return=[%d]", ret);
+	return ret;
+
+}
 
 /*********************************************************
 函数说明：节点环境配置
@@ -91,22 +105,6 @@ ndStatus CNodeGeneral::NodeInit()
 ndStatus CNodeGeneral::NodeEnvSet()
 {
 	return ND_SUCCESS;
-}
-
-/*********************************************************
-函数说明：清除所有的EDGE进程
-入参说明：无
-出参说明：无
-返回值  ：无
-*********************************************************/
-void CNodeGeneral::CleanAllEdge()
-{
-	char cmd[512]={0};
-	sprintf(cmd, "killall %s", EDGE_EXE_FILE_NAME);
-	AfxExecCmd(cmd);
-
-	strcpy(cmd, "killall edge");
-	AfxExecCmd(cmd);	
 }
 
 /*********************************************************

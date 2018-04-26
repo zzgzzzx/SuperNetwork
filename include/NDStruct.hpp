@@ -77,6 +77,8 @@ typedef struct
 	ndString	sNodePwd;
 	//vpn节点的MAC地址
 	ndString 	sNodeMac;
+	//vpn节点出口的IP地址
+	ndString 	sOutIP;
 	//HelloTime
 	ndInt32		lHelloTime;
 	//RestartTime

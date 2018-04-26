@@ -39,7 +39,7 @@ CHttpRunEvnCK::CHttpRunEvnCK(CNodeBase *node):CHttpGeneral(node)
 ndStatus CHttpRunEvnCK::MakeCheckReq()
 {
     char *out, devicetype[128]={0};
-    cJSON *root, *fmt, *actions;
+    cJSON *root, *fmt, *actions, *arugments;
 
     //组装消息体
     root = cJSON_CreateObject();
@@ -51,13 +51,16 @@ ndStatus CHttpRunEvnCK::MakeCheckReq()
 
     cJSON_AddItemToObject(root, "actions", actions = cJSON_CreateArray());
 
-    //========================set===========================================
     cJSON_AddItemToArray(actions, fmt = cJSON_CreateObject());
     cJSON_AddStringToObject(fmt, "action", SUPER_ACTION_NODE_ENV_CHECK);
 
 	CSuperVPNApp *pSuperVPNApp = dynamic_cast<CSuperVPNApp*> (gPSuperVPNApp);
 	if(pSuperVPNApp != NULL) sprintf(devicetype, "devicetype=%s", pSuperVPNApp->GetDeviceType().c_str());
-	cJSON_AddStringToObject(fmt, "arugments", devicetype);
+	
+	cJSON_AddItemToObject(actions, "devparams", arugments = cJSON_CreateArray());
+	cJSON_AddItemToArray(arugments, fmt = cJSON_CreateObject());
+    cJSON_AddStringToObject(fmt, "subtype", devicetype);
+	cJSON_AddStringToObject(fmt, "other", "");
 
     out = cJSON_Print(root);
     mSendBuf = out;
@@ -233,9 +236,7 @@ ndStatus CHttpRunEvnCK::AnalysisCheckRsp()
 出参说明：无
 返回值  ：无
 *********************************************************/
-#define READ_DATA_SIZE  1024  
-#define MD5_SIZE        16  
-#define MD5_STR_LEN     (MD5_SIZE * 2) 
+#define READ_DATA_SIZE  1024   
 ndBool getFileMD5(const ndString& filename, ndString& fileMd5)
 {
     int i;  
@@ -315,6 +316,9 @@ ndStatus CHttpRunEvnCK::EdgeCheck()
 			AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::EdgeCheck] Get MD5 ERROR\n");
 		}
 	}
+
+	//增加先清除edge
+	AfxCleanAllEdge();
 
 	ndStatus ret = Download(EDGE_EXE_PATH_NAME, mRunEnvCK.edge.mDownLodURL, mRunEnvCK.edge.sMD5);
     if(ret != ND_SUCCESS){

@@ -18,7 +18,6 @@
 *********************************************************/
 CHttpSrvNode::CHttpSrvNode(CNodeBase *node):CHttpGeneral(node)
 {
-	mSrvURL = VPN_CENTER_SRV_URL;
 }
 
 /*********************************************************
@@ -31,6 +30,8 @@ ndStatus CHttpSrvNode::MakeServerListReq()
 {
     char *out;
     cJSON *root, *fmt, *actions;
+
+	mSrvURL = URL_NODE_GET_SERVER_LIST;
 
     //组装消息体
     root = cJSON_CreateObject();
@@ -184,6 +185,8 @@ ndStatus CHttpSrvNode::MakeNodeInitReq()
     char *out;
     cJSON *root, *fmt, *actions;
 
+	mSrvURL = URL_SERVER_NODE_INIT;
+
     //组装消息体
     root = cJSON_CreateObject();
     cJSON_AddItemToObject(root, "node", fmt=cJSON_CreateObject());
@@ -195,6 +198,40 @@ ndStatus CHttpSrvNode::MakeNodeInitReq()
     //========================set===========================================
     cJSON_AddItemToArray(actions, fmt = cJSON_CreateObject());
     cJSON_AddStringToObject(fmt, "action", SUPER_ACTION_SERVER_NODE_INIT);
+	cJSON_AddStringToObject(fmt, "arugments", "");
+
+    out = cJSON_Print(root);
+    mSendBuf = out;
+
+    cJSON_Delete(root);
+    free(out);
+
+    return ND_SUCCESS;
+}
+
+/*********************************************************
+函数说明：获取IP
+入参说明：无
+出参说明：无
+返回值  ：无
+*********************************************************/
+ndStatus CHttpSrvNode::MakeNodeGetIPReq()
+{
+    char *out;
+    cJSON *root, *fmt, *actions;
+
+	mSrvURL = URL_SERVER_NODE_GETIP;
+    //组装消息体
+    root = cJSON_CreateObject();
+    cJSON_AddItemToObject(root, "node", fmt=cJSON_CreateObject());
+	cJSON_AddNumberToObject(fmt, "version",	SUPER_VPN_CLIENT_VER_SERVER);
+    cJSON_AddStringToObject(fmt, "mac", mPNode->GetNodeInform().sNodeMac.c_str());
+    AfxWriteDebugLog("SuperVPN run at [CHttpSrvNode::MakeNodeGetIPReq] Make Init actions");
+    cJSON_AddItemToObject(root, "actions", actions = cJSON_CreateArray());
+
+    //========================set===========================================
+    cJSON_AddItemToArray(actions, fmt = cJSON_CreateObject());
+    cJSON_AddStringToObject(fmt, "action", SUPER_ACTION_SERVER_NODE_GETIP);
 	cJSON_AddStringToObject(fmt, "arugments", "");
 
     out = cJSON_Print(root);
@@ -328,6 +365,8 @@ ndStatus CHttpSrvNode::MakeNodeEnvSetReq()
 {
     char *out;
     cJSON *root, *fmt, *actions;
+
+	mSrvURL = URL_SERVER_NODE_SET;
 
     //组装消息体
     root = cJSON_CreateObject();

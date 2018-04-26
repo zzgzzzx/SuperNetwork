@@ -19,7 +19,6 @@
 *********************************************************/
 CHttpUserNode::CHttpUserNode(CNodeBase *node):CHttpGeneral(node)
 {
-	mSrvURL = VPN_CENTER_USER_URL;
 }
 
 /*********************************************************
@@ -33,10 +32,12 @@ ndStatus CHttpUserNode::MakeServerListReq()
     char *out;
     cJSON *root, *fmt, *actions;
 
+	mSrvURL = URL_NODE_GET_SERVER_LIST;
+
     //组装消息体
     root = cJSON_CreateObject();
     cJSON_AddItemToObject(root, "node", fmt=cJSON_CreateObject());
-	cJSON_AddNumberToObject(fmt, "version",	SUPER_VPN_CLIENT_VER_NODE);
+	cJSON_AddNumberToObject(fmt, "version",	SUPER_VPN_CLIENT_VER_USER);
     cJSON_AddStringToObject(fmt, "nodeid", mPNode->GetNodeInform().sNodeID.c_str());
 
     AfxWriteDebugLog("SuperVPN run at [CHttpSrvNode::MakeServerListReq] Make ServerList actions");
@@ -72,7 +73,7 @@ ndStatus CHttpUserNode::MakeNodeHelloReq()
     //组装消息体
     root = cJSON_CreateObject();
     cJSON_AddItemToObject(root, "node", fmt=cJSON_CreateObject());
-	cJSON_AddNumberToObject(fmt, "version",	SUPER_VPN_CLIENT_VER_NODE);
+	cJSON_AddNumberToObject(fmt, "version",	SUPER_VPN_CLIENT_VER_USER);
     cJSON_AddStringToObject(fmt, "nodeid", mPNode->GetNodeInform().sNodeID.c_str());
     AfxWriteDebugLog("SuperVPN run at [CHttpUserNode::MakeNodeHelloReq] Make Hello actions");
     cJSON_AddItemToObject(root, "actions", actions = cJSON_CreateArray());
@@ -115,10 +116,12 @@ ndStatus CHttpUserNode::MakeNodeInitReq()
     char *out;
     cJSON *root, *fmt, *actions;
 
+	mSrvURL = URL_USER_NODE_INIT;
+
     //组装消息体
     root = cJSON_CreateObject();
     cJSON_AddItemToObject(root, "node", fmt=cJSON_CreateObject());
-	cJSON_AddNumberToObject(fmt, "version",	SUPER_VPN_CLIENT_VER_NODE);
+	cJSON_AddNumberToObject(fmt, "version",	SUPER_VPN_CLIENT_VER_USER);
     cJSON_AddStringToObject(fmt, "mac", mPNode->GetNodeInform().sNodeMac.c_str());
     AfxWriteDebugLog("SuperVPN run at [CHttpUserNode::MakeNodeEnvSetReq] Make Init actions");
     cJSON_AddItemToObject(root, "actions", actions = cJSON_CreateArray());
@@ -126,6 +129,41 @@ ndStatus CHttpUserNode::MakeNodeInitReq()
     //========================set===========================================
     cJSON_AddItemToArray(actions, fmt = cJSON_CreateObject());
     cJSON_AddStringToObject(fmt, "action", SUPER_ACTION_USER_NODE_INIT);
+	cJSON_AddStringToObject(fmt, "arugments", "");
+
+    out = cJSON_Print(root);
+    mSendBuf = out;
+
+    cJSON_Delete(root);
+    free(out);
+
+    return ND_SUCCESS;
+}
+
+/*********************************************************
+函数说明：获取IP
+入参说明：无
+出参说明：无
+返回值  ：无
+*********************************************************/
+ndStatus CHttpUserNode::MakeNodeGetIPReq()
+{
+    char *out;
+    cJSON *root, *fmt, *actions;
+
+	mSrvURL = URL_USER_NODE_GETIP;
+
+    //组装消息体
+    root = cJSON_CreateObject();
+    cJSON_AddItemToObject(root, "node", fmt=cJSON_CreateObject());
+	cJSON_AddNumberToObject(fmt, "version",	SUPER_VPN_CLIENT_VER_USER);
+    cJSON_AddStringToObject(fmt, "mac", mPNode->GetNodeInform().sNodeMac.c_str());
+    AfxWriteDebugLog("SuperVPN run at [CHttpUserNode::MakeNodeGetIPReq] Make Init actions");
+    cJSON_AddItemToObject(root, "actions", actions = cJSON_CreateArray());
+
+    //========================set===========================================
+    cJSON_AddItemToArray(actions, fmt = cJSON_CreateObject());
+    cJSON_AddStringToObject(fmt, "action", SUPER_ACTION_USER_NODE_GETIP);
 	cJSON_AddStringToObject(fmt, "arugments", "");
 
     out = cJSON_Print(root);
@@ -149,10 +187,12 @@ ndStatus CHttpUserNode::MakeNodeEnvSetReq()
     char *out;
     cJSON *root, *fmt, *actions;
 
+	mSrvURL = URL_USER_NODE_SET;
+
     //组装消息体
     root = cJSON_CreateObject();
     cJSON_AddItemToObject(root, "node", fmt=cJSON_CreateObject());
-	cJSON_AddNumberToObject(fmt, "version",	SUPER_VPN_CLIENT_VER_NODE);
+	cJSON_AddNumberToObject(fmt, "version",	SUPER_VPN_CLIENT_VER_USER);
     cJSON_AddStringToObject(fmt, "nodeid", mPNode->GetNodeInform().sNodeID.c_str());
     AfxWriteDebugLog("SuperVPN run at [CHttpUserNode::MakeNodeEnvSetReq] Make EnvSet actions");
     cJSON_AddItemToObject(root, "actions", actions = cJSON_CreateArray());

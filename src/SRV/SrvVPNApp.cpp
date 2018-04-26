@@ -66,4 +66,23 @@ ndStatus CSrvVPNApp::RunEnvCheck(char *appname, bool ifOnlyCheckUpgrade)
 	return httpRunEnvCK.BeginCheck(appname, ifOnlyCheckUpgrade);
 }
 
+/*********************************************************
+函数说明：系统数据初始化
+入参说明：
+出参说明：
+返回值  ：
+*********************************************************/
+bool CSrvVPNApp::InitSystem(char *appname, bool ifOnlyCheckUpgrade)
+{
+	if (!CSuperVPNApp::InitSystem(appname,ifOnlyCheckUpgrade)) return false;
+	
+	//定时重启检测
+	if(mPNode->GetNodeInform().lRestartTime > 0)
+		AfxInsertSingleTimer(TIMER_ID_NODE_RESTART_CHECK, mPNode->GetNodeInform().lRestartTime, NodeRestartFunc);	
+	else
+		AfxInsertSingleTimer(TIMER_ID_NODE_RESTART_CHECK, 24*3600, NodeRestartFunc);	
+
+	return true;
+}
+
 

@@ -10,6 +10,8 @@
 #include "HttpUserNode.hpp"
 #include "NDFunc.hpp"
 
+extern CSuperVPNApp *gPSuperVPNApp;
+
 /*********************************************************
 函数说明：构造函数
 入参说明：无
@@ -53,7 +55,8 @@ ndStatus CNodeUser::NodeEnvSet()
 	//=============================================================================
 	//获取下游设备MAC与身份ID对应的关系(从网关数据库获取),并进行数据的初始化
 	//=============================================================================
-	if (!AfxGetIdentifySet()->InitIdentifyFromGW())
+	CUserVPNApp *pSuperVPNApp = dynamic_cast<CUserVPNApp*> (gPSuperVPNApp);
+	if (!pSuperVPNApp->GetIdentifySet()->InitIdentifyFromGW())
 	{
 		AfxWriteDebugLog("SuperVPN run at [CNodeUser::NodeEnvSet] ReadMacIdentifyFromGW");
 		return ND_ERROR_INVALID_PARAM;	
@@ -93,7 +96,8 @@ ndStatus CNodeUser::SetEdgeAndRoute(list<SBindInform> ltBSer)
 	*pBI = *iter;
 
 	//通知IdentifySet增加出口绑定信息
-	AfxGetIdentifySet()->AddItem(pBI->sDeviceFlag, pBI);
+	CUserVPNApp *pSuperVPNApp = dynamic_cast<CUserVPNApp*> (gPSuperVPNApp);
+	pSuperVPNApp->GetIdentifySet()->AddItem(pBI->sDeviceFlag, pBI);
 
 	return ND_SUCCESS;
 }
@@ -154,7 +158,8 @@ ndStatus CNodeUser::BindIdentifyService(list<SBindInform> ltBSer)
 	//=============================================================================
 	//在网关上获取mac与ip的对应关系，配置vpn通道
 	//=============================================================================	
-	if (!AfxGetIdentifySet()->ReadARP(ltBSer))
+	CUserVPNApp *pSuperVPNApp = dynamic_cast<CUserVPNApp*> (gPSuperVPNApp);	
+	if (!pSuperVPNApp->GetIdentifySet()->ReadARP(ltBSer))
 	{
 		AfxWriteDebugLog("SuperVPN run at [CNodeUser::BindIdentifyService] Get ARP error=[%d]", ret);
 		return ND_ERROR_INVALID_PARAM;	
@@ -180,7 +185,8 @@ ndStatus CNodeUser::BindIdentifyService(list<SBindInform> ltBSer)
 **************************************************************/
 ndStatus CNodeUser::UnBindIdentifyService(SBindInform sBindInform)
 {
-	if (!AfxGetIdentifySet()->FindItem(sBindInform.sDeviceFlag))
+	CUserVPNApp *pSuperVPNApp = dynamic_cast<CUserVPNApp*> (gPSuperVPNApp); 
+	if (!pSuperVPNApp->GetIdentifySet()->FindItem(sBindInform.sDeviceFlag))
 	{
 		AfxWriteDebugLog("SuperVPN run at [CNodeUser::UnBindIdentifyService] Not Founc Identify");
 		return ND_ERROR_INVALID_REQUEST;	
@@ -198,7 +204,7 @@ ndStatus CNodeUser::UnBindIdentifyService(SBindInform sBindInform)
 	RemoveEdgeAndRoute(sBindInform);
 	
 	//移除数据集对应的记录信息
-	AfxGetIdentifySet()->DelItem(sBindInform.sDeviceFlag);
+	pSuperVPNApp->GetIdentifySet()->DelItem(sBindInform.sDeviceFlag);
 }
 
 

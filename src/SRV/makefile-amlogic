@@ -3,6 +3,7 @@ CROSS = arm-linux-gnueabihf-
 CC = $(CROSS)gcc  
 CPP = $(CROSS)g++  
 LD = $(CROSS)ld
+STRIP=$(CROSS)strip
 
 DEFINC = -I../../include -I../../include/cJson -I/usr/include/curl -I../../include/SRV
 INCS += $(DEFINC)  
@@ -23,12 +24,14 @@ LDFLAGS += -L/home/zhangzx/amlogic/curl/lib -lcurl -pthread
   
 all:$(BIN)  
 $(COBJS) : %.o: %.c  
-	$(CC) $(CFLAGS) -c $< -o $@   
+	$(CC) $(CFLAGS) -c $< -o $@
+
 $(CPPOBJS) : %.o: %.cpp  
 	$(CPP) $(CPPFLAGS) -c $< -o $@   
   
 $(BIN) : $(COBJS) $(CPPOBJS)  
-	$(CPP) -o $(BIN) $(COBJS) $(CPPOBJS) $(LDFLAGS) $(LIBS)   
+	$(CPP) -o $(BIN) $(COBJS) $(CPPOBJS) $(LDFLAGS) $(LIBS)
+	$(STRIP) $(BIN)
 	rm $(COBJS)  
 	rm $(CPPOBJS)  
 

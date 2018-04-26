@@ -71,7 +71,7 @@ MD5_CTX *context;                                        /* context */
 /*********************************************************************/
 void MD5Update (context, input, inputLen)
 MD5_CTX *context;                               /* context */
-unsigned char *input;                           /* 输入分组*/
+const unsigned char *input;                     /* 输入分组*/
 unsigned int inputLen;                          /* 输入的分组的长度 */
 {
   unsigned int i, index, partLen;
@@ -283,15 +283,16 @@ unsigned int len;
 /******************************/
 /* 计算字符串的摘要并打印其值 */
 /******************************/
-void MD5(string,out,len)
-char *string;
+void MD5(in,out,len)
+const char *in;
 unsigned char *out; 
+unsigned int len;
 {
 	MD5_CTX context;
 	unsigned char digest[16];
 
 	MD5Init (&context);
-	MD5Update (&context, string, len);
+	MD5Update (&context, in, len);
 	MD5Final (digest, &context);
 
 	memcpy(out,digest,16);

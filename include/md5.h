@@ -29,12 +29,13 @@ typedef struct
 {
   UINT4 state[4];					/* state (ABCD) */
   UINT4 count[2];					/* 位数量, 模 2^64 (低位在前) */
-  unsigned char buffer[64];			/* 输入缓冲器 */
+  unsigned char buffer[64];		/* 输入缓冲器 */
 } MD5_CTX;
 
 void MD5Init (MD5_CTX *);
 void MD5Update (MD5_CTX *, unsigned char *, unsigned int);
 void MD5Final (unsigned char [16], MD5_CTX *);
+void MD5(char *, unsigned char*, unsigned int);
 
 #ifdef __cplusplus
 }

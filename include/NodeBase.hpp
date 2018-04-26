@@ -50,6 +50,9 @@ public:
 	virtual void DealHelloAddNewDomain(list<SDomain> &domain);
 
 	void SetNodeID(ndString nodeid);
+	void SetNodePWD(ndString pwd);
+
+	void SetNodeOutIP(ndString outip);
 
 	SNodeInform &GetNodeInform();
 

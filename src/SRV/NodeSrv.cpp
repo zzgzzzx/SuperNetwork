@@ -108,7 +108,7 @@ ndStatus CNodeSrv::SetN2NVPNNetwork()
 	int iNodeIndex=0;
 
 	//先清除所有的EDGE进程
-	CleanAllEdge();
+	AfxCleanAllEdge();
 
 	if (mSNodeInform.mSupperNode.size() <= 0)
 	{

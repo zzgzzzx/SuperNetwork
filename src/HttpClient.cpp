@@ -185,7 +185,7 @@ namespace network {
         struct curl_slist *headers = NULL;
         headers = curl_slist_append(headers, "Accept: *.*");
         headers = curl_slist_append(headers, "Content-Type: application/json");
-        //headers = curl_slist_append(headers, GenerateAuthentication().c_str());
+        headers = curl_slist_append(headers, GenerateAuthHeader().c_str());
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
         AfxWriteDebugLog("SuperVPN run at [CHttpClient::Post] Curl Easy Setopt URL=[%s]", pUrl);
@@ -244,8 +244,8 @@ namespace network {
                 curl_easy_setopt(curl, CURLOPT_SSLKEYTYPE, "PEM");
             }
         }
-        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 8);
-        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 16);
+        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, VALUE_CURLOPT_CONNECTTIMEOUT);
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, VALUE_CURLOPT_CONNECTTIMEOUT);
 
         //Web服务器一般会重定向链接，比如访问http:/xxx/x1.do自动转到http:/xxx/x2.do
         //所以一定要设置CURLOPT_FOLLOWLOCATION为1,否则重定向后的数据不会返回。
