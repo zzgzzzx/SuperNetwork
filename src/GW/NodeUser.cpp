@@ -148,7 +148,9 @@ ndStatus CNodeUser::BindIdentifyService(SBindInform sBindInform)
 ndStatus CNodeUser::BindIdentifyService(list<SBindInform> ltBSer)
 {
 	//获取身份与出口的绑定信息	
-    ndStatus ret = mPHttpClient->GetIdentifyService(ltBSer);
+	CHttpUserNode *pHttpUser = dynamic_cast<CHttpGeneral *>(mPHttpClient);
+	
+    ndStatus ret = pHttpUser->GetIdentifyService(ltBSer);
 	if (ret != ND_SUCCESS)
 	{
 		AfxWriteDebugLog("SuperVPN run at [CNodeUser::BindIdentifyService] Get Services error=[%d]", ret);
@@ -193,7 +195,8 @@ ndStatus CNodeUser::UnBindIdentifyService(SBindInform sBindInform)
 	}
 
 	//通知中心出口的绑定信息释放	
-    ndStatus ret = mPHttpClient->ReleaseIdentifyService(sBindInform);
+	CHttpUserNode *pHttpUser = dynamic_cast<CHttpUserNode*> (mPHttpClient);	
+    ndStatus ret = pHttpUser->ReleaseIdentifyService(sBindInform);
 	if (ret != ND_SUCCESS)
 	{
 		AfxWriteDebugLog("SuperVPN run at [CNodeUser::UnBindIdentifyService] Get Services error=[%d]", ret);

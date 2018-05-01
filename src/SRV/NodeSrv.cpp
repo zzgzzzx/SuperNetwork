@@ -135,7 +135,7 @@ ndStatus CNodeSrv::SetN2NVPNNetwork()
 		}
 
 		char *ExecCMD = (char*)calloc(1, 1024);
-		sprintf(ExecCMD, "%s -d ian%d -a %s -s %s -c %s -k %s -l %s:%s -r",
+		sprintf(ExecCMD, "%s -d ian%d -a %s -s %s -c %s -k %s -l %s:%d -r",
 					EDGE_EXE_PATH_NAME,
 					iNodeIndex,
 					domain.lNodeIP.c_str(),
@@ -143,7 +143,7 @@ ndStatus CNodeSrv::SetN2NVPNNetwork()
 					domain.sDomain.c_str(),
 					domain.sDomainKey.c_str(),
 					superNode.sSuperNodeIP.c_str(),
-					superNode.sSuperNodePort.c_str());
+					superNode.iSuperNodePort);
 		
 	    pthread_t id;
 	    int ret = pthread_create(&id, NULL, &CNodeGeneral::ThreadFunction, (void *)ExecCMD);

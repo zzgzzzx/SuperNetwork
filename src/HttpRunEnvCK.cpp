@@ -23,6 +23,7 @@ extern CBaseApp *gPSuperVPNApp;
 *********************************************************/
 CHttpRunEvnCK::CHttpRunEvnCK(CNodeBase *node):CHttpGeneral(node)
 {
+	mSrvURL = URL_NODE_ENV_CHECK;
 	mRunEnvCK.node.iVerCode = 0;
 	mRunEnvCK.node.mDownLodURL.clear();
 	mRunEnvCK.deamon.mDownLodURL.clear();
@@ -38,29 +39,24 @@ CHttpRunEvnCK::CHttpRunEvnCK(CNodeBase *node):CHttpGeneral(node)
 *********************************************************/
 ndStatus CHttpRunEvnCK::MakeCheckReq()
 {
-    char *out, devicetype[128]={0};
+    char *out, subtype[64]={0};
     cJSON *root, *fmt, *actions, *arugments;
 
     //组装消息体
     root = cJSON_CreateObject();
-    cJSON_AddItemToObject(root, "node", fmt=cJSON_CreateObject());
-	cJSON_AddNumberToObject(fmt, "version",	mLocalVersion);
-    cJSON_AddStringToObject(fmt, "nodeid", mPNode->GetNodeInform().sNodeID.c_str());
-
     AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::MakeCheckReq] Make check actions");
 
     cJSON_AddItemToObject(root, "actions", actions = cJSON_CreateArray());
-
     cJSON_AddItemToArray(actions, fmt = cJSON_CreateObject());
     cJSON_AddStringToObject(fmt, "action", SUPER_ACTION_NODE_ENV_CHECK);
 
 	CSuperVPNApp *pSuperVPNApp = dynamic_cast<CSuperVPNApp*> (gPSuperVPNApp);
-	if(pSuperVPNApp != NULL) sprintf(devicetype, "devicetype=%s", pSuperVPNApp->GetDeviceType().c_str());
+	if(pSuperVPNApp != NULL) strcpy(subtype, pSuperVPNApp->GetDeviceType().c_str());
 	
 	cJSON_AddItemToObject(actions, "devparams", arugments = cJSON_CreateArray());
 	cJSON_AddItemToArray(arugments, fmt = cJSON_CreateObject());
-    cJSON_AddStringToObject(fmt, "subtype", devicetype);
-	cJSON_AddStringToObject(fmt, "other", "");
+    cJSON_AddStringToObject(fmt, "subtype", subtype);
+	cJSON_AddNumberToObject(fmt, "checktime", pSuperVPNApp->GetCheckTime());
 
     out = cJSON_Print(root);
     mSendBuf = out;
@@ -108,9 +104,29 @@ ndStatus CHttpRunEvnCK::AnalysisCheckRsp()
         if(replices != NULL)
         {
             cJSON *repliceslist = replices->child;
+
+			//取新的id
+			cJSON *objType = cJSON_GetObjectItem(repliceslist, "newnodeid") ;
+			if(objType != NULL)
+			{
+				if(cJSON_GetObjectItem(objType, "newid") != NULL &&
+						cJSON_GetObjectItem(objType, "newis")->valueuint != NULL)
+					{
+				        ndString newid= cJSON_GetObjectItem(objType, "newid")->valuestring;
+						AfxWriteNodeID(newid.c_str());
+						mPNode->SetNodeID(newid);
+					}
+			}
+
+			//取新的检测时间
+			objType = cJSON_GetObjectItem(repliceslist, "newchecktime") ;
+			if(objType != NULL)
+			{
+				//如果是服务节点坑宝设备的，需要进行重置处理
+			}
 			
 			//取node信息
-			cJSON *objType = cJSON_GetObjectItem(repliceslist, "node") ;
+			objType = cJSON_GetObjectItem(repliceslist, "node") ;
 			if(objType != NULL)
 			{
 			    if(cJSON_GetObjectItem(objType, "version") != NULL &&

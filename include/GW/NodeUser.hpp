@@ -22,6 +22,7 @@ public:
 
 	//结点初始化，向服务器申请配置信息
 	ndStatus NodeEnvSet();
+	
 	//根据用户的特征码进行关联
 	ndStatus SetEdgeAndRoute(list<SBindInform> ltBSer);
 	//移除下线设备的vpn通道与路由信息

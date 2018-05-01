@@ -10,9 +10,6 @@
 #include "NDFunc.hpp"
 #include "cJSON.h"
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-//数据包基类                 
-///////////////////////////////////////////////////////////////////////////////////////////////////////
 /*********************************************************
 函数说明：
 入参说明：
@@ -92,7 +89,7 @@ bool CHelloPkt::SendHelloPkt()
 	CHelloSrvThread *pThread = AfxGetHelloSrv();
 	if(pThread == NULL) return false;
 	
-	pThread->SendTo(mSndNP.lDesIP, mSndNP.uDesPort, mSendBuf.c_str(), mSendBuf.length());
+	pThread->SendTo(mSndNP.lSrcIP, mSndNP.uSrcPort, mSendBuf.c_str(), mSendBuf.length());
 	return true;
 }
 

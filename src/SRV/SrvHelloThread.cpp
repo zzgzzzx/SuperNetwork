@@ -1,46 +1,45 @@
 /*********************************************************
 模块名       : 
-文件名       :SrvHelloPkt.cpp
-相关文件     :SrvHelloPkt.hpp
-文件实现功能 :Srvhello数据包类
+文件名       :SrvHelloThread.cpp
+相关文件     :SrvHelloThread.hpp
+文件实现功能 :Hello服务包处理实现文件
 作者         :zhangzx 
 版本         :1.0 
 **********************************************************/
+#include "SrvHelloThread.hpp"
+#include "NDFunc.hpp"
 #include "SrvHelloPkt.hpp"
 
 /*********************************************************
-函数说明：
+函数说明：构造函数
 入参说明：
 出参说明：
 返回值  ：
 *********************************************************/
-CSrvHelloPkt::CSrvHelloPkt()
+CSrvHelloThread::CSrvHelloThread()
 {
 }
 
 /*********************************************************
-函数说明：
+函数说明：创建新包
 入参说明：
 出参说明：
 返回值  ：
 *********************************************************/
-CSrvHelloPkt::~CSrvHelloPkt()
+CPacket* CSrvHelloThread::GetNewPkt()
 {
-
+	CPacket *pkt = new CSrvHelloPkt();
+	return pkt;
 }
+
 
 /*********************************************************
-函数说明：检测数据包
+函数说明：析构函数
 入参说明：
 出参说明：
 返回值  ：
 *********************************************************/
-bool CSrvHelloPkt::DealWithPkt()
+CSrvHelloThread::~CSrvHelloThread()
 {
-	//用户网关发出来的hello请求数据包处理,直接应答数据包给用户网关
-	SendHelloPkt();
-
-	return true;
 }
-
 

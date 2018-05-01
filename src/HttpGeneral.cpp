@@ -9,6 +9,7 @@
 #include "HttpGeneral.hpp"
 #include "cJSON.h"
 #include "NDFunc.hpp"
+#include "md5.h"
 
 extern list<SServerInfo> gServers;
 extern list<SServerInfo>::iterator gITCurServer,gITBakServer;
@@ -88,7 +89,7 @@ ndStatus CHttpGeneral::AnalysisNodeInitRsp()
 			return ND_ERROR_INVALID_RESPONSE;
         }		
         
-        cJSON *replices = cJSON_GetObjectItem(root, "replies");
+        cJSON *replices = cJSON_GetObjectItem(actionslist, "replies");
         if(replices != NULL)
         {
             cJSON *repliceslist = replices->child;
@@ -112,7 +113,26 @@ ndStatus CHttpGeneral::AnalysisNodeInitRsp()
 *********************************************************/
 ndStatus CHttpGeneral::MakeNodeGetIPReq()
 {
-	return ND_SUCCESS;
+    char *out;
+    cJSON *root, *fmt, *actions;
+
+	mSrvURL = URL_SERVER_NODE_GETIP;
+    //组装消息体
+    root = cJSON_CreateObject();
+    AfxWriteDebugLog("SuperVPN run at [CHttpSrvNode::MakeNodeGetIPReq] Make Init actions");
+    cJSON_AddItemToObject(root, "actions", actions = cJSON_CreateArray());
+
+    //========================set===========================================
+    cJSON_AddItemToArray(actions, fmt = cJSON_CreateObject());
+    cJSON_AddStringToObject(fmt, "action", SUPER_ACTION_NODE_GETIP);
+
+    out = cJSON_Print(root);
+    mSendBuf = out;
+
+    cJSON_Delete(root);
+    free(out);
+
+    return ND_SUCCESS;
 }
 
 /*********************************************************
@@ -146,7 +166,7 @@ ndStatus CHttpGeneral::AnalysisNodeGetIPRsp()
 			return ND_ERROR_INVALID_RESPONSE;
         }		
         
-        cJSON *replices = cJSON_GetObjectItem(root, "replies");
+        cJSON *replices = cJSON_GetObjectItem(actionslist, "replies");
         if(replices != NULL)
         {
             cJSON *repliceslist = replices->child;
@@ -182,307 +202,6 @@ ndStatus CHttpGeneral::AnalysisNodeEnvSetRsp()
 }
 
 /*********************************************************
-函数说明：节点Hello
-入参说明：无
-出参说明：无
-返回值  ：无
-*********************************************************/
-ndStatus CHttpGeneral::MakeNodeHelloReq()
-{
-	return ND_SUCCESS;
-}
-
-/*********************************************************
-函数说明：节点Hello返回处理
-入参说明：无
-出参说明：无
-返回值  ：无
-*********************************************************/
-ndStatus CHttpGeneral::AnalysisNodeHelloRsp()
-{
-	return ND_SUCCESS;
-}
-
-/*********************************************************
-函数说明：失联服务通知
-入参说明：无
-出参说明：无
-返回值  ：无
-*********************************************************/
-ndStatus CHttpGeneral::MakeServiceErrorReq(SBindInform &sBI)
-{
-    char *out, arugments[64]={0};
-    cJSON *root, *fmt, *actions;
-
-	mSrvURL = URL_NODE_SERVICES_ERROR;
-
-    //组装消息体
-    root = cJSON_CreateObject();
-    cJSON_AddItemToObject(root, "node", fmt=cJSON_CreateObject());
-	cJSON_AddNumberToObject(fmt, "version",	SUPER_VPN_CLIENT_VER_USER);
-    cJSON_AddStringToObject(fmt, "nodeid", mPNode->GetNodeInform().sNodeID.c_str());
-
-    AfxWriteDebugLog("SuperVPN run at [CHttpSrvNode::MakeBindServerReq] Make ServerList actions");
-
-    cJSON_AddItemToObject(root, "actions", actions = cJSON_CreateArray());
-
-    //========================set===========================================
-    cJSON_AddItemToArray(actions, fmt = cJSON_CreateObject());
-    cJSON_AddStringToObject(fmt, "action", SUPER_ACTION_NODE_SERVICES_ERROR);
-	sprintf(arugments, "servicesip=%s", sBI.sServiceIP.c_str());
-	cJSON_AddStringToObject(fmt, "arugments", arugments);
-
-    out = cJSON_Print(root);
-    mSendBuf = out;
-
-    cJSON_Delete(root);
-    free(out);
-	
-	return ND_SUCCESS;
-}
-
-ndStatus CHttpGeneral::AnalysisServiceErrorRsp(SBindInform &sBI)
-{
-    cJSON *root;
-	int iErrCode;
-
-    root = cJSON_Parse(mRcvBuf.c_str());
-    if (!root)
-    {
-        AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::AnalysisServiceErrorRsp] Error before: [%s]", cJSON_GetErrorPtr());
-        return ND_ERROR_INVALID_RESPONSE;
-    }
-
-    cJSON *actionsArray = cJSON_GetObjectItem(root, "actions");
-    if(actionsArray != NULL)
-    {
-
-        cJSON *actionslist = actionsArray->child;
-
-        iErrCode = cJSON_GetObjectItem(actionslist, "error")->valueint;
-        if(iErrCode != 0)
-		{
-			cJSON_Delete(root);
-			return ND_ERROR_INVALID_RESPONSE;
-        }		
-
-        cJSON *replices = cJSON_GetObjectItem(root, "replies");
-        if(replices != NULL)
-        {
-            cJSON *repliceslist = replices->child;
-
-            cJSON *servers = cJSON_GetObjectItem(repliceslist, "services");
-            if(servers != NULL)
-            {
-                    cJSON *serverslist = servers->child;
-
-                    AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::AnalysisServiceErrorRsp] Get servers");
-                    SBindInform item;
-                    while(serverslist != NULL)
-                    {
-                        if(cJSON_GetObjectItem(serverslist, "oldservicesip") != NULL &&
-                           cJSON_GetObjectItem(serverslist, "oldservicesip")->valuestring != NULL)
-                            sBI.sServiceIP = cJSON_GetObjectItem(serverslist, "oldservicesip")->valuestring;
-						AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::AnalysisBindServerRsp] oldservicesip ip=[%s]",sBI.sServiceIP.c_str());
-
-                        if(cJSON_GetObjectItem(serverslist, "newservicesip") != NULL &&
-                           cJSON_GetObjectItem(serverslist, "newservicesip")->valuestring != NULL)
-                            sBI.sServiceIP = cJSON_GetObjectItem(serverslist, "newservicesip")->valuestring;
-						AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::AnalysisBindServerRsp] newservicesip ip=[%s]",sBI.sServiceIP.c_str());
-
-                        break;
-                    }			
-            }
-        }
-
-        cJSON_Delete(root);
-    }	
-	
-	return ND_SUCCESS;	
-}
-	
-/*********************************************************
-函数说明：组合获取服务出口
-入参说明：无
-出参说明：无
-返回值  ：无
-*********************************************************/
-ndStatus CHttpGeneral::MakeBindServerReq(ndString devidentify)
-{
-    char *out;
-    cJSON *root, *fmt, *actions;
-
-	mSrvURL = URL_NODE_GET_SERVICES;
-
-    //组装消息体
-    root = cJSON_CreateObject();
-    cJSON_AddItemToObject(root, "node", fmt=cJSON_CreateObject());
-	cJSON_AddNumberToObject(fmt, "version",	SUPER_VPN_CLIENT_VER_USER);
-    cJSON_AddStringToObject(fmt, "nodeid", mPNode->GetNodeInform().sNodeID.c_str());
-
-    AfxWriteDebugLog("SuperVPN run at [CHttpSrvNode::MakeBindServerReq] Make ServerList actions");
-
-    cJSON_AddItemToObject(root, "actions", actions = cJSON_CreateArray());
-
-    //========================set===========================================
-    cJSON_AddItemToArray(actions, fmt = cJSON_CreateObject());
-    cJSON_AddStringToObject(fmt, "action", SUPER_ACTION_NODE_GET_SERVICES);
-	cJSON_AddStringToObject(fmt, "arugments", devidentify.c_str());
-
-    out = cJSON_Print(root);
-    mSendBuf = out;
-
-    cJSON_Delete(root);
-    free(out);
-	
-	return ND_SUCCESS;
-}
-
-/*********************************************************
-函数说明：分析获取服务出口
-入参说明：无
-出参说明：无
-返回值  ：无
-*********************************************************/
-ndStatus CHttpGeneral::AnalysisBindServerRsp(list<SBindInform> &mServers)
-{
-    cJSON *root;
-	int iErrCode;
-
-    root = cJSON_Parse(mRcvBuf.c_str());
-    if (!root)
-    {
-        AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::AnalysisBindServerRsp] Error before: [%s]", cJSON_GetErrorPtr());
-        return ND_ERROR_INVALID_RESPONSE;
-    }
-
-    cJSON *actionsArray = cJSON_GetObjectItem(root, "actions");
-    if(actionsArray != NULL)
-    {
-
-        cJSON *actionslist = actionsArray->child;
-
-        iErrCode = cJSON_GetObjectItem(actionslist, "error")->valueint;
-        if(iErrCode != 0)
-		{
-			cJSON_Delete(root);
-			return ND_ERROR_INVALID_RESPONSE;
-        }		
-
-		mServers.clear();
-		
-        cJSON *replices = cJSON_GetObjectItem(root, "replies");
-        if(replices != NULL)
-        {
-            cJSON *repliceslist = replices->child;
-
-            cJSON *servers = cJSON_GetObjectItem(repliceslist, "services");
-            if(servers != NULL)
-            {
-                    cJSON *serverslist = servers->child;
-
-                    AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::AnalysisBindServerRsp] Get servers");
-                    SBindInform item;
-                    while(serverslist != NULL)
-                    {
-                        if(cJSON_GetObjectItem(serverslist, "deviceflag") != NULL &&
-                           cJSON_GetObjectItem(serverslist, "deviceflag")->valuestring != NULL)
-                            item.sDeviceFlag = cJSON_GetObjectItem(serverslist, "deviceflag")->valuestring;
-						AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::AnalysisBindServerRsp] deviceflag=[%s]", item.sDeviceFlag.c_str());
-
-                        if(cJSON_GetObjectItem(serverslist, "serviceip") != NULL &&
-                           cJSON_GetObjectItem(serverslist, "serviceip")->valuestring != NULL)
-                            item.sServiceIP = cJSON_GetObjectItem(serverslist, "serviceip")->valuestring;
-						AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::AnalysisBindServerRsp] serviceip=[%s]", item.sServiceIP.c_str());
-
-                        mServers.push_back(item);
-                        serverslist = serverslist->next;
-                    }
-			
-            }
-        }
-
-        cJSON_Delete(root);
-    }	
-	
-	return ND_SUCCESS;	
-}
-
-/*********************************************************
-函数说明：组合释放服务出口
-入参说明：无
-出参说明：无
-返回值  ：无
-*********************************************************/
-ndStatus CHttpGeneral::MakeUnBindServerReq(SBindInform sBI)
-{
-    char *out;
-    cJSON *root, *fmt, *actions;
-
-	mSrvURL = URL_NODE_RELEASE_SERVICES;
-
-    //组装消息体
-    root = cJSON_CreateObject();
-    cJSON_AddItemToObject(root, "node", fmt=cJSON_CreateObject());
-	cJSON_AddNumberToObject(fmt, "version",	SUPER_VPN_CLIENT_VER_USER);
-    cJSON_AddStringToObject(fmt, "nodeid", mPNode->GetNodeInform().sNodeID.c_str());
-
-    AfxWriteDebugLog("SuperVPN run at [CHttpSrvNode::MakeUnBindServerReq] Make ServerList actions");
-
-    cJSON_AddItemToObject(root, "actions", actions = cJSON_CreateArray());
-
-    //========================set===========================================
-    cJSON_AddItemToArray(actions, fmt = cJSON_CreateObject());
-    cJSON_AddStringToObject(fmt, "action", SUPER_ACTION_NODE_RELEASE_SERVICES);
-	cJSON_AddStringToObject(fmt, "arugments", "");
-
-    out = cJSON_Print(root);
-    mSendBuf = out;
-
-    cJSON_Delete(root);
-    free(out);
-	
-	return ND_SUCCESS;
-}
-
-/*********************************************************
-函数说明：分析释放服务出口
-入参说明：无
-出参说明：无
-返回值  ：无
-*********************************************************/
-ndStatus CHttpGeneral::AnalysisUnBindServerRsp()
-{
-    cJSON *root;
-	int iErrCode;
-
-    root = cJSON_Parse(mRcvBuf.c_str());
-    if (!root)
-    {
-        AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::AnalysisUnBindServerRsp] Error before: [%s]", cJSON_GetErrorPtr());
-        return ND_ERROR_INVALID_RESPONSE;
-    }
-
-    cJSON *actionsArray = cJSON_GetObjectItem(root, "actions");
-    if(actionsArray != NULL)
-    {
-
-        cJSON *actionslist = actionsArray->child;
-
-        iErrCode = cJSON_GetObjectItem(actionslist, "error")->valueint;
-        if(iErrCode != 0)
-		{
-			cJSON_Delete(root);
-			AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::AnalysisUnBindServerRsp] Return Error=[%d]", iErrCode);
-			return ND_ERROR_INVALID_RESPONSE;
-        }
-        cJSON_Delete(root);
-    }	
-	
-	return ND_SUCCESS;	
-}
-	
-/*********************************************************
 函数说明：服务器列表请求
 入参说明：无
 出参说明：无
@@ -490,6 +209,29 @@ ndStatus CHttpGeneral::AnalysisUnBindServerRsp()
 *********************************************************/
 ndStatus CHttpGeneral::MakeServerListReq()
 {
+    char *out;
+    cJSON *root, *fmt, *actions;
+
+	mSrvURL = URL_NODE_GET_SERVER_LIST;
+
+    //组装消息体
+    root = cJSON_CreateObject();
+    AfxWriteDebugLog("SuperVPN run at [CHttpSrvNode::MakeServerListReq] Make ServerList actions");
+    cJSON_AddItemToObject(root, "actions", actions = cJSON_CreateArray());
+
+    //========================set===========================================
+    cJSON_AddItemToArray(actions, fmt = cJSON_CreateObject());
+    cJSON_AddStringToObject(fmt, "action", SUPER_ACTION_NODE_GET_SERVER_LIST);
+
+    cJSON_AddItemToArray(actions, fmt = cJSON_CreateObject());
+    cJSON_AddStringToObject(fmt, "action", SUPER_ACTION_NODE_GETIP);	
+
+    out = cJSON_Print(root);
+    mSendBuf = out;
+
+    cJSON_Delete(root);
+    free(out);
+	
 	return ND_SUCCESS;
 }
 
@@ -526,7 +268,7 @@ ndStatus CHttpGeneral::AnalysisServerListRsp(list<SServerInfo> &mServers)
 
 		mServers.clear();
 		
-        cJSON *replices = cJSON_GetObjectItem(root, "replies");
+        cJSON *replices = cJSON_GetObjectItem(actionslist, "replies");
         if(replices != NULL)
         {
             cJSON *repliceslist = replices->child;
@@ -540,18 +282,33 @@ ndStatus CHttpGeneral::AnalysisServerListRsp(list<SServerInfo> &mServers)
                     SServerInfo item;
                     while(serverslist != NULL)
                     {
-                        if(cJSON_GetObjectItem(serverslist, "ip") != NULL &&
-                           cJSON_GetObjectItem(serverslist, "ip")->valuestring != NULL)
-                            item.sServerIP = cJSON_GetObjectItem(serverslist, "ip")->valuestring;
-						AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::AnalysisServerListRsp] server ip=[%s]",item.sServerIP.c_str());
-
-                        if(cJSON_GetObjectItem(serverslist, "port") != NULL &&
-                           cJSON_GetObjectItem(serverslist, "port")->valuestring != NULL)
-                            item.sServerPort = cJSON_GetObjectItem(serverslist, "port")->valuestring;
-						AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::AnalysisServerListRsp] server port=[%s]",item.sServerPort.c_str());
+                        if(cJSON_GetObjectItem(serverslist, "host") != NULL &&
+                           cJSON_GetObjectItem(serverslist, "host")->valuestring != NULL)
+                            item.sSrvURL= cJSON_GetObjectItem(serverslist, "host")->valuestring;
+						AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::AnalysisServerListRsp] server url=[%s]",item.sSrvURL.c_str());
 
                         mServers.push_back(item);
                         serverslist = serverslist->next;
+                    }
+			
+            }
+
+			cJSON *ips = cJSON_GetObjectItem(repliceslist, "ip");
+            if(servers != NULL)
+            {
+                    cJSON *ip = ips->child;
+
+                    AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::AnalysisServerListRsp] Get OutIP");
+                    while(ip != NULL)
+                    {
+                        if(cJSON_GetObjectItem(ip , "ip") != NULL &&
+                           cJSON_GetObjectItem(ip , "ip")->valuestring != NULL)
+                        {
+                           ndString outip = cJSON_GetObjectItem(ip , "ip")->valuestring;
+						   mPNode->SetNodeOutIP(outip);
+						   AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::AnalysisServerListRsp] Out ip=[%s]", outip.c_str());
+                        }											
+                        ip = ip->next;
                     }
 			
             }
@@ -593,113 +350,6 @@ ndBool CHttpGeneral::GetServerList(list<SServerInfo> &mServers)
     }
 
     return ND_SUCCESS;
-}
-
-/*********************************************************
-函数说明：失联服务通知中心变更
-入参说明：无
-出参说明：无
-返回值  ：无
-*********************************************************/
-ndStatus CHttpGeneral::ServiceErrorNotify(SBindInform &sBindInform)
-{
-    //组装数据包
-    ndStatus  ret = MakeServiceErrorReq(sBindInform);
-    if(ret != ND_SUCCESS)
-	{
-        AfxWriteDebugLog("SuperVPN run at[CHttpGeneral::ServiceErrorNotify] MakeRequest Pkg Err ret=[%d]", ret);
-        return ret;
-    }
-	//数据包发送
-	ret = PkgSendAndRecv(mSrvURL);
-	if (ret != ND_SUCCESS)
-	{
-		AfxWriteDebugLog("SuperVPN run at[CHttpGeneral::ServiceErrorNotify] PkgSendAndRecv Err ret=[%d]", ret);
-		return ret;
-	}
-	//数据包解析
-    ret = AnalysisServiceErrorRsp(sBindInform);
-    if(ret != ND_SUCCESS){
-        AfxWriteDebugLog("SuperVPN run at[CHttpGeneral::ServiceErrorNotify] AnalyzeResponsePkg Err ret=[%d]", ret);
-        return ret;
-    }
-
-    return ND_SUCCESS;	
-}
-
-/*********************************************************
-函数说明：获取服务器出口
-入参说明：无
-出参说明：无
-返回值  ：无
-*********************************************************/
-ndStatus CHttpGeneral::GetIdentifyService(list<SBindInform> &ltBSer)
-{
-	ndString devidentify;
-	SBindInform sBI;
-	BindInformItr iter = ltBSer.begin();
-	while(iter != ltBSer.end())
-	{
-		sBI = *iter;
-		devidentify += sBI.sDeviceFlag;
-		iter++;
-		if(iter != ltBSer.end()) devidentify += "&";
-	}
-	
-    //组装数据包
-    ndStatus  ret = MakeBindServerReq(devidentify);
-    if(ret != ND_SUCCESS)
-	{
-        AfxWriteDebugLog("SuperVPN run at[CHttpGeneral::GetServerList] MakeRequest Pkg Err ret=[%d]", ret);
-        return ret;
-    }
-	//数据包发送
-	ret = PkgSendAndRecv(mSrvURL);
-	if (ret != ND_SUCCESS)
-	{
-		AfxWriteDebugLog("SuperVPN run at[CHttpGeneral::GetServerList] PkgSendAndRecv Err ret=[%d]", ret);
-		return ret;
-	}
-	//数据包解析
-    ret = AnalysisBindServerRsp(ltBSer);
-    if(ret != ND_SUCCESS){
-        AfxWriteDebugLog("SuperVPN run at[CHttpGeneral::GetServerList] AnalyzeResponsePkg Err ret=[%d]", ret);
-        return ret;
-    }
-
-    return ND_SUCCESS;	
-}
-
-/*********************************************************
-函数说明：释放服务器出口
-入参说明：无
-出参说明：无
-返回值  ：无
-*********************************************************/
-ndStatus CHttpGeneral::ReleaseIdentifyService(SBindInform sBI)
-{
-    //组装数据包
-    ndStatus  ret = MakeUnBindServerReq(sBI);
-    if(ret != ND_SUCCESS)
-	{
-        AfxWriteDebugLog("SuperVPN run at[CHttpGeneral::ReleaseIdentifyService] MakeRequest Pkg Err ret=[%d]", ret);
-        return ret;
-    }
-	//数据包发送
-	ret = PkgSendAndRecv(mSrvURL);
-	if (ret != ND_SUCCESS)
-	{
-		AfxWriteDebugLog("SuperVPN run at[CHttpGeneral::ReleaseIdentifyService] PkgSendAndRecv Err ret=[%d]", ret);
-		return ret;
-	}
-	//数据包解析
-    ret = AnalysisUnBindServerRsp();
-    if(ret != ND_SUCCESS){
-        AfxWriteDebugLog("SuperVPN run at[CHttpGeneral::ReleaseIdentifyService] AnalyzeResponsePkg Err ret=[%d]", ret);
-        return ret;
-    }
-
-    return ND_SUCCESS;	
 }
 
 /*********************************************************
@@ -803,39 +453,6 @@ ndStatus CHttpGeneral::NodeEnvSet()
 	
 }
 
-
-/*********************************************************
-函数说明：结点Hello处理
-入参说明：无
-出参说明：无
-返回值  ：无
-*********************************************************/
-ndStatus CHttpGeneral::NodeHello()
-{
-    //组装数据包
-    ndStatus  ret = MakeNodeHelloReq();
-    if(ret != ND_SUCCESS)
-	{
-        AfxWriteDebugLog("SuperVPN run at[CHttpGeneral::NodeHello] MakeRequest Pkg Err ret=[%d]", ret);
-        return ret;
-    }
-
-	ret = PkgSendAndRecv(mSrvURL);
-	if (ret != ND_SUCCESS)
-	{
-		AfxWriteDebugLog("SuperVPN run at[CHttpGeneral::NodeHello] PkgSendAndRecv Err ret=[%d]", ret);
-		return ret;
-	}
-
-    ret = AnalysisNodeHelloRsp();
-    if(ret != ND_SUCCESS){
-        AfxWriteDebugLog("SuperVPN run at[CHttpGeneral::NodeHello] AnalyzeResponsePkg Err ret=[%d]", ret);
-        return ret;
-    }
-
-    return ND_SUCCESS;
-}
-
 /*********************************************************
 函数说明：数据包发送与接收
 入参说明：无
@@ -844,12 +461,12 @@ ndStatus CHttpGeneral::NodeHello()
 *********************************************************/
 ndStatus CHttpGeneral::PkgSendAndRecv(ndString url)
 {
-	ndString sSrvUrl;
+	ndString host;
     //判断服务器地址
     SServerInfo serverInfo = *gITCurServer;
-	sSrvUrl =  "http://"+serverInfo.sServerIP+":"+serverInfo.sServerPort+url;
+	host = serverInfo.sSrvURL + url;
 	
-    if(sSrvUrl.empty()){
+    if(host.empty()){
         AfxWriteDebugLog("SuperVPN run at[CHttpGeneral::PkgSendAndRecv] Http Server Empty Err");
         return ND_ERROR_INVALID_PARAM;
     }	
@@ -863,11 +480,11 @@ ndStatus CHttpGeneral::PkgSendAndRecv(ndString url)
     AfxWriteDebugLog("SuperVPN run at[CHttpGeneral::PkgSendAndRecv] Begin post data\n ServerURL=[%s]\n [%s]", sSrvUrl.c_str(), mSendBuf.c_str());
 rePost:
     //发送服务端并接收返回
-    CURLcode rtn = Post(sSrvUrl.c_str(), mSendBuf.c_str(), mRcvBuf);
+    CURLcode rtn = Post(host.c_str(), mSendBuf.c_str(), mRcvBuf);
     if(rtn != CURLE_OK){
         while(AfxGetNextSrvUrl(serverInfo)){
-			sSrvUrl =  "http://"+serverInfo.sServerIP+":"+serverInfo.sServerPort+url;
-            rtn = Post(sSrvUrl.c_str(), mSendBuf.c_str(), mRcvBuf);
+			host = serverInfo.sSrvURL + url;
+            rtn = Post(host.c_str(), mSendBuf.c_str(), mRcvBuf);
             if (rtn == CURLE_OK) {
                 break;
             }
@@ -932,35 +549,36 @@ ndString CHttpGeneral::GenerateAuthHeader()
 	// MD5(post数据+密钥)
 	ndString in;
 	unsigned char out[MD5_SIZE]; 
-	char strMD5[64]={0};
+	char strMD5[64]={0}, ret[128]={0};
 	
-	if(strcmp(mSrvURL, URL_SERVER_NODE_GETIP) == 0 ||
-		strcmp(mSrvURL, URL_USER_NODE_GETIP) == 0 ||
-		strcmp(mSrvURL, URL_SERVER_NODE_INIT) == 0 ||
-		strcmp(mSrvURL, URL_USER_NODE_INIT) == 0 ||
-		strcmp(mSrvURL, URL_SERVER_NODE_SET) == 0 ||
-		strcmp(mSrvURL, URL_USER_NODE_SET) == 0 ||
-		strcmp(mSrvURL, URL_NODE_ENV_CHECK) == 0 ||
-		strcmp(mSrvURL, URL_NODE_GET_SERVER_LIST) == 0 ||
-		strcmp(mSrvURL, URL_NODE_GET_SERVICES) == 0 ||
-		strcmp(mSrvURL, URL_NODE_RELEASE_SERVICES) == 0 ||
-		strcmp(mSrvURL, URL_NODE_SERVICES_ERROR) == 0
+	if(strcmp(mSrvURL.c_str(), URL_NODE_GETIP) == 0 ||
+		strcmp(mSrvURL.c_str(), URL_SERVER_NODE_INIT) == 0 ||
+		strcmp(mSrvURL.c_str(), URL_USER_NODE_INIT) == 0 ||
+		strcmp(mSrvURL.c_str(), URL_SERVER_NODE_SET) == 0 ||
+		strcmp(mSrvURL.c_str(), URL_USER_NODE_SET) == 0 ||
+		strcmp(mSrvURL.c_str(), URL_NODE_ENV_CHECK) == 0 ||
+		strcmp(mSrvURL.c_str(), URL_NODE_GET_SERVER_LIST) == 0 ||
+		strcmp(mSrvURL.c_str(), URL_NODE_GET_SERVICES) == 0 ||
+		strcmp(mSrvURL.c_str(), URL_NODE_RELEASE_SERVICES) == 0 ||
+		strcmp(mSrvURL.c_str(), URL_NODE_SERVICES_ERROR) == 0
 		)
 	{		
-		in = mSendBuf + mPNode.GetNodeInform().sOutIP;		
+		in = mSendBuf + mPNode->GetNodeInform().sOutIP;		
 	}
 	else
 	{
-		in = mSendBuf + mPNode.GetNodeInform().sNodePwd;	
+		in = mSendBuf + mPNode->GetNodeInform().sNodePwd;	
 	}
 
-	MD5(in.c_str(),out, in.length());
+	MD5((char *)in.c_str(),out, in.length());
 
 	for(int i = 0; i <MD5_SIZE; i++)  
     {  
         snprintf(strMD5 + i*2, 2+1, "%02x", out[i]);  
     }  
     strMD5[MD5_STR_LEN] = '\0';
+
+	sprintf(ret, "Authentication=%s", strMD5);
 		
-	return "Authentication="+strMD5;
+	return ret;
 }

@@ -66,7 +66,7 @@ typedef struct
 	 //vpn超级节点的IP地址
 	 ndString	 sSuperNodeIP;
 	 //vpn超级节点的端口号
-	 ndString	 sSuperNodePort;
+	 ndInt16 iSuperNodePort;
 }SSupperNode;
 
 typedef struct
@@ -87,6 +87,7 @@ typedef struct
 	vector<SSupperNode> mSupperNode;
 	//所属域的相关信息
 	list<SDomain> mDomainInforms;	
+	//域id与
 	CMap<ndString, SDomain> mDomainMap;
 	//用户节点/网关的IP地址池
 	SIPPool mIPPool;
@@ -101,10 +102,10 @@ typedef struct
   */
  typedef struct
 {
-	 //中心服务器的IP地址
-	 ndString	 sServerIP;
-	 //中心服务器端口号
-	 ndString	 sServerPort;
+	 //服务器URL
+	 ndString	 sSrvURL;
+	 //权重
+	 ndInt16	 iWeight;
 }SServerInfo;
 
 /*

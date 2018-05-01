@@ -81,7 +81,7 @@ CHelloSrvThread *AfxGetHelloSrv()
 	CSuperVPNApp *pSuperVPNApp = dynamic_cast<CSuperVPNApp*> (gPSuperVPNApp);
 	if(pSuperVPNApp == NULL) return NULL;
 
-	return &(pSuperVPNApp->mHelloSrv);
+	return pSuperVPNApp->mPHelloSrv;
 }
 
 /*********************************************************
@@ -295,6 +295,44 @@ char *AfxGetNodePwd()
 	return nodepwd;
 }
 
+/*********************************************************
+函数说明：设置定时任务时间
+入参说明：
+出参说明：
+返回值  ：
+*********************************************************/
+void AfxWriteTaskTime(int time)
+{
+	FILE *pFile;
+	char tasktime[32]={0};
+
+	if ((pFile = fopen(TASK_CHECK_FILE_NAME, "w+")) == NULL) return;
+
+	sprintf(tasktime, "%d", time);
+	fputs(tasktime, pFile);
+	fclose(pFile);
+}
+
+/*********************************************************
+函数说明：获取定时任务时间
+入参说明：
+出参说明：
+返回值  ：
+*********************************************************/
+int AfxGetTaskTime()
+{
+	FILE *pFile;
+	char tasktime[32]={0};
+
+	if ((pFile = fopen(TASK_CHECK_FILE_NAME, "r")) == NULL) return TASK_CHECK_TIMER_VALUE;
+
+	fgets(tasktime, sizeof(tasktime), pFile);
+	fclose(pFile);
+
+	return atoi(tasktime);
+}
+
+
 
 /*********************************************************
 函数说明：获取服务列表
@@ -330,7 +368,7 @@ ndString ServerListToString(list<SServerInfo> &mServers)
 		sInfo = *iter;
     	cJSON_AddItemToArray(actions, fmt = cJSON_CreateObject());
     	cJSON_AddStringToObject(fmt, "ip", sInfo.sServerIP.c_str());
-		cJSON_AddStringToObject(fmt, "port", sInfo.sServerPort.c_str());		
+		cJSON_AddNumberToObject(fmt, "port", sInfo.sServerPort);		
 	}
 	
     out = cJSON_Print(root);
@@ -379,8 +417,8 @@ void StringToServerList(ndString json, list<SServerInfo> &mServers)
 
 		    if(cJSON_GetObjectItem(serverlist, "port") != NULL &&
 		       cJSON_GetObjectItem(serverlist, "port")->valuestring != NULL)
-		        sInfo.sServerPort = cJSON_GetObjectItem(serverlist, "port")->valuestring;
-			AfxWriteDebugLog("SuperVPN run at [StringToServerList] port=[%s]", sInfo.sServerPort.c_str());
+		        sInfo.sServerPort = cJSON_GetObjectItem(serverlist, "port")->valueint;
+			AfxWriteDebugLog("SuperVPN run at [StringToServerList] port=[%d]", sInfo.sServerPort);
 
 			mServers.push_back(sInfo);
 
@@ -417,16 +455,16 @@ ndBool AfxGetServerList(list<SServerInfo> &mServers)
 	//初始化列表信息
 	SServerInfo server;
 	
-	server.sServerIP = "n003.zrdx.com";
-	server.sServerPort = "5211";
-	mServers.push_back(server);
-
 	server.sServerIP = "n001.zrdx.com";
-	server.sServerPort = "5211";
+	server.sServerPort = 5213;
 	mServers.push_back(server);
 
 	server.sServerIP = "n002.zrdx.com";
-	server.sServerPort = "5211";
+	server.sServerPort = 5213;
+	mServers.push_back(server);	
+
+	server.sServerIP = "n003.zrdx.com";
+	server.sServerPort = 5213;
 	mServers.push_back(server);	
 	
 	//检测/etc/network目录是否存在
@@ -444,6 +482,9 @@ ndBool AfxGetServerList(list<SServerInfo> &mServers)
 	AfxWriteDebugLog("SuperVPN run at [AfxGetServerList] Check /etc/network/server.list");
 	if (access(SERVER_LIST_FILE_NAME, NULL) != 0)
 	{
+		char cmd[1024]={0};
+		sprintf(cmd, "rm %s*", SERVER_LIST_FILE_NAME);
+		AfxExecCmd(const char * cmd)
 		if ((pFile = fopen(SERVER_LIST_FILE_NAME, "w+")) == NULL)
 		{
 			AfxWriteDebugLog("SuperVPN run at [AfxGetServerList] Create [%s] File Fail", SERVER_LIST_FILE_NAME);

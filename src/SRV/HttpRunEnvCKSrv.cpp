@@ -20,7 +20,6 @@
 *********************************************************/
 CHttpRunEvnCKSrv::CHttpRunEvnCKSrv(CNodeBase *node):CHttpRunEvnCK(node)
 {
-	mSrvURL = VPN_CENTER_SRV_URL;
 	mLocalVersion = SUPER_VPN_CLIENT_VER_SERVER;
 }
 

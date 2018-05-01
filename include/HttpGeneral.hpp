@@ -32,32 +32,16 @@ protected:
 	virtual ndStatus AnalysisNodeInitRsp();
 
 	//获取IP
-	virtual ndStatus MakeNodeGetIPReq();
+	ndStatus MakeNodeGetIPReq();
 	ndStatus AnalysisNodeGetIPRsp();	
 
 	//节点配置
 	virtual ndStatus MakeNodeEnvSetReq();
 	virtual ndStatus AnalysisNodeEnvSetRsp();
 
-	//节点Hello
-	virtual ndStatus MakeNodeHelloReq();
-	virtual ndStatus AnalysisNodeHelloRsp();
-
 	//获取服务器列表
 	virtual ndStatus MakeServerListReq();
-	ndStatus AnalysisServerListRsp(list<SServerInfo> &mServers);
-
-	//获取服务出口
-	ndStatus MakeBindServerReq(ndString devidentify);
-	ndStatus AnalysisBindServerRsp(list<SBindInform> &mServers);	
-
-	//失联服务通知
-	ndStatus MakeServiceErrorReq(SBindInform &sBI);
-	ndStatus AnalysisServiceErrorRsp(SBindInform &sBI);		
-
-	//释放服务出口
-	ndStatus MakeUnBindServerReq(SBindInform sBI);
-	ndStatus AnalysisUnBindServerRsp();		
+	ndStatus AnalysisServerListRsp(list<SServerInfo> &mServers);	
 
 	//数据包发送并接收处理
 	ndStatus PkgSendAndRecv(ndString url);	
@@ -67,15 +51,10 @@ public:
 	CHttpGeneral(CNodeBase *node);
 
 	ndStatus NodeEnvSet();
-	ndStatus NodeHello();
 	ndStatus NodeInit();
 	ndStatus GetIP();	
 	
 	ndBool GetServerList(list<SServerInfo> &mServers);
-	ndStatus GetIdentifyService(list<SBindInform> &ltBSer);
-	ndStatus ReleaseIdentifyService(SBindInform sBI);
-
-	ndStatus ServiceErrorNotify(SBindInform &sBindInform);
 	
     virtual ~CHttpGeneral();
 

@@ -13,41 +13,35 @@ using namespace std;
   
 MyDB::MyDB()  
 {  
-#ifdef GENERAL_NODE_USER_APP
    	connection = mysql_init(NULL); 
     if(connection == NULL)  
     {  
 		AfxWriteDebugLog("SuperVPN run at [MyDB::MyDB] mysql_init error=[%s]", mysql_error(connection));
     }
-#endif
 }  
   
 MyDB::~MyDB()  
 {  
-#ifdef GENERAL_NODE_USER_APP
     if(connection != NULL)
     {  
         mysql_close(connection);  
     }
-#endif
 }  
   
 bool MyDB::initDB(string host, string user, string pwd, string db_name)  
 {  
-#ifdef GENERAL_NODE_USER_APP
     connection = mysql_real_connect(connection, host.c_str(),  
             user.c_str(), pwd.c_str(), db_name.c_str(), 0, NULL, 0);  
     if(connection == NULL)  
     {  
         AfxWriteDebugLog("SuperVPN run at [MyDB::initDB] mysql_real_connect error=[%s]", mysql_error(connection)); 
     }
-#endif
+
     return true;  
 }  
   
 bool MyDB::exeSQL(string sql)  
 {  
-#ifdef GENERAL_NODE_USER_APP
     if(mysql_query(connection, sql.c_str()))  
     {  
         AfxWriteDebugLog("SuperVPN run at [MyDB::exeSQL] exeSQL error=[%s]", mysql_error(connection));  
@@ -70,13 +64,12 @@ bool MyDB::exeSQL(string sql)
         }  
         mysql_free_result(result);  
     }
-#endif
+
     return true;  
 }  
 
 bool MyDB::GetIndetifyMac(list<SBindInform> &ltSI)
 {
-#ifdef GENERAL_NODE_USER_APP
 	ndString host;
 	SBindInform sBI;
 	
@@ -112,7 +105,7 @@ bool MyDB::GetIndetifyMac(list<SBindInform> &ltSI)
         }  
         mysql_free_result(result);  
     }
-#endif
+
 	return true;
 }
 

@@ -131,11 +131,34 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 #define NODEID_FILE_NAME	"/etc/ian/node.id"
 #define NODEPWD_FILE_NAME	"/etc/ian/pwd.id"
 
+/*---------------------------------------------------------------------------------------
+//定时任务检测时间
+-----------------------------------------------------------------------------------------*/
+#define TASK_CHECK_FILE_NAME "/etc/ian/task.time"
+
+/*---------------------------------------------------------------------------------------
+//升级文件的临时文件名
+-----------------------------------------------------------------------------------------*/
+#define VPN_UPGRADE_FILE_NAME  "/dev/shm/upgrade_SuperVPN_app"
+#define VPN_UPGRADE_TEMP_FILE_NAME  "/dev/shm/upgrade_SuperVPN_app_tmp"
+
+#define VPN_EXE_FILE_NAME  "SuperVPN"
+#define VPN_EXE_PATH_NAME  "/usr/bin/SuperVPN"
+
+#define CHECK_VPN_EXE_FILE_NAME  "CheckSuperVPN"
+#define CHECK_VPN_EXE_PATH_NAME  "/usr/bin/CheckSuperVPN"
+
+#define EDGE_EXE_FILE_NAME  "ian"
+#define EDGE_EXE_PATH_NAME  "/usr/bin/ian"
+
+#define RUN_LOCK_FILE_NAME  "/var/run/supervpn.lock"
+#define UPGRADE_LOCK_FILE_NAME  "/var/run/checkupgrade.lock"
+
 
 /*---------------------------------------------------------------------------------------
 //服务器列表 IP:Port
 -----------------------------------------------------------------------------------------*/
-#define SERVER_LIST_FILE_NAME	"/etc/ian/server.list"
+#define SERVER_LIST_FILE_NAME	"/etc/ian/server.list001"
 //主机名的文件
 #define HOST_FILE_NAME	"/etc/hosts"
 
@@ -170,6 +193,11 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 #define TIMER_ID_NODE_RESTART_CHECK	0x0002			//restart检测检测
 
 /*---------------------------------------------------------------------------------------
+//checkVPN定时检测任务(分钟)
+-----------------------------------------------------------------------------------------*/
+#define TASK_CHECK_TIMER_VALUE 2
+
+/*---------------------------------------------------------------------------------------
 //定时器时间设置(秒数)
 -----------------------------------------------------------------------------------------*/
 #define TIMER_VALUE_NODE_HELLO_CHECK	60			//节点Hello检测
@@ -193,51 +221,30 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 /*---------------------------------------------------------------------------------------
 //中心服务器地址 http://45.33.58.27:8080
 -----------------------------------------------------------------------------------------*/
-//server-node-getip
-#define URL_SERVER_NODE_GETIP "/sng"
-//user-node-getip
-#define URL_USER_NODE_GETIP "/ung"
+//node-getip
+#define URL_NODE_GETIP "/ngi/"
 
 //server-node-init
-#define URL_SERVER_NODE_INIT "/sni"
+#define URL_SERVER_NODE_INIT "/pni/"
 //user-node-init
-#define URL_USER_NODE_INIT "/uni"
+#define URL_USER_NODE_INIT "/uni/"
 
 //server-node-set
-#define URL_SERVER_NODE_SET "/sns"
+#define URL_SERVER_NODE_SET "/pns/"
 //user-node-set
-#define URL_USER_NODE_SET "/uns"
+#define URL_USER_NODE_SET "/uns/"
 
 //run-env-check
-#define URL_NODE_ENV_CHECK "/rec"
+#define URL_NODE_ENV_CHECK "/ec/"
 //server-list-inform
-#define URL_NODE_GET_SERVER_LIST "/sli"
+#define URL_NODE_GET_SERVER_LIST "/sli/"
 
 //user-node-get-services
-#define URL_NODE_GET_SERVICES "/ungs"
+#define URL_NODE_GET_SERVICES "/ungs/"
 //user-node-release-services
-#define URL_NODE_RELEASE_SERVICES "/unrs"
+#define URL_NODE_RELEASE_SERVICES "/unrs/"
 //user-node-notify-services-error
-#define URL_NODE_SERVICES_ERROR "/unnse"
-
-
-/*---------------------------------------------------------------------------------------
-//升级文件的临时文件名
------------------------------------------------------------------------------------------*/
-#define VPN_UPGRADE_FILE_NAME  "/dev/shm/upgrade_SuperVPN_app"
-#define VPN_UPGRADE_TEMP_FILE_NAME  "/dev/shm/upgrade_SuperVPN_app_tmp"
-
-#define VPN_EXE_FILE_NAME  "SuperVPN"
-#define VPN_EXE_PATH_NAME  "/usr/bin/SuperVPN"
-
-#define CHECK_VPN_EXE_FILE_NAME  "CheckSuperVPN"
-#define CHECK_VPN_EXE_PATH_NAME  "/usr/bin/CheckSuperVPN"
-
-#define EDGE_EXE_FILE_NAME  "ian"
-#define EDGE_EXE_PATH_NAME  "/usr/bin/ian"
-
-#define RUN_LOCK_FILE_NAME  "/var/run/supervpn.lock"
-#define UPGRADE_LOCK_FILE_NAME  "/var/run/checkupgrade.lock"
+#define URL_NODE_SERVICES_ERROR "/unes/"
 
 /*---------------------------------------------------------------------------------------
 //设备DeviceType
@@ -248,27 +255,31 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 /*---------------------------------------------------------------------------------------
 //数据包Action标签名称定义
 -----------------------------------------------------------------------------------------*/
-#define SUPER_ACTION_SERVER_NODE_GETIP "server-node-getip"
-#define SUPER_ACTION_USER_NODE_GETIP "user-node-getip"
+//获取服务器资源列表
+#define SUPER_ACTION_NODE_GET_SERVER_LIST "server-list"
+//获取节点出口ip地址
+#define SUPER_ACTION_NODE_GETIP "node-getip"
 
-#define SUPER_ACTION_SERVER_NODE_INIT "server-node-init"
-#define SUPER_ACTION_USER_NODE_INIT "user-node-init"
+//运行环境与软件版本号检测
+#define SUPER_ACTION_NODE_ENV_CHECK "env-check"
 
-#define SUPER_ACTION_SERVER_NODE_HELLO "server-node-hello"
-#define SUPER_ACTION_USER_NODE_HELLO "user-node-hello"
-#define SUPER_ACTION_SERVICES_CHECK_HELLO "services-check-hello"
+//网关与服务节点的Hello检测
+#define SUPER_ACTION_SERVICES_CHECK_HELLO "node-hello"
 
-#define SUPER_ACTION_SERVER_NODE_SET "server-node-set"
-#define SUPER_ACTION_USER_NODE_SET "user-node-set"
+//节点初始化
+#define SUPER_ACTION_SERVER_NODE_INIT "pn-init"
+#define SUPER_ACTION_USER_NODE_INIT "un-init"
 
-#define SUPER_ACTION_USER_NODE_ROUTE "user-node-get-services"
-#define SUPER_ACTION_NODE_ENV_CHECK "run-env-check"
-#define SUPER_ACTION_NODE_GET_SERVER_LIST "server-list-inform"
+//节点环境设置
+#define SUPER_ACTION_SERVER_NODE_SET "pn-set"
+#define SUPER_ACTION_USER_NODE_SET "un-set"
 
-#define SUPER_ACTION_NODE_GET_SERVICES "user-node-get-services"
-#define SUPER_ACTION_NODE_RELEASE_SERVICES "user-node-release-services"
-
-#define SUPER_ACTION_NODE_SERVICES_ERROR "user-node-notify-services-error"
+//获取身份与出口绑定信息(网关)
+#define SUPER_ACTION_NODE_GET_SERVICES "un-get-services"
+//释放身份与出口绑定信息(网关)
+#define SUPER_ACTION_NODE_RELEASE_SERVICES "un-release-services"
+//通知服务节点失联(网关)
+#define SUPER_ACTION_NODE_SERVICES_ERROR "un-error-services"
 
 #define VALUE_CURLOPT_DOWNLOAD_RETRY_TIMES 5
 #define VALUE_CURLOPT_POST_RETRY_TIMES 3

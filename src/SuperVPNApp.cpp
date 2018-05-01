@@ -194,7 +194,7 @@ bool CSuperVPNApp::InitSystem(char *appname, bool ifOnlyCheckUpgrade)
 		return false;
 
 	//启用Hello服务
-	if (mHelloSrv.Start()) 
+	if (mPHelloSrv->Start()) 
 		AfxWriteDebugLog("SuperVPN run at [CSuperVPNApp::InitSystem] HELLO SERVER START ERROR...");
 	else
 		AfxWriteDebugLog("SuperVPN run at [CSuperVPNApp::InitSystem] HELLO SERVER START WORKING...");	
@@ -214,12 +214,12 @@ ndStatus CSuperVPNApp::NodeInitCheck()
 	//如果存在，则读出编号，如果不存在，进行申请
 	char *nodeid = AfxGetNodeID();
 	if(nodeid == NULL){
-		ndStatus ret = mPNode->GetIP();
-		if(ret != ND_SUCCESS)
-		{
-			AfxWriteDebugLog("SuperVPN run at [CSuperVPNApp::NodeInitCheck] GetIP Err Ret=[%d]", ret);	
-			return ret;
-		}
+		//ndStatus ret = mPNode->GetIP();
+		//if(ret != ND_SUCCESS)
+		//{
+		//	AfxWriteDebugLog("SuperVPN run at [CSuperVPNApp::NodeInitCheck] GetIP Err Ret=[%d]", ret);	
+		//	return ret;
+		//}
 		return mPNode->NodeInit();
 	}
 
@@ -289,6 +289,38 @@ CSuperVPNApp::~CSuperVPNApp()
 {
 	delete mPNode;
 }
+
+/*********************************************************
+函数说明：获取检测时间
+入参说明：
+出参说明：
+返回值  ：
+*********************************************************/
+int CSuperVPNApp::GetCheckTime()
+{
+	//如果时间的文件不存在，则进行用默认时间写入时间文件
+	if(AfxFileExist(TASK_CHECK_FILE_NAME))
+	{
+		AfxWriteTaskTime(TASK_CHECK_TIMER_VALUE);
+	}
+
+	mCheckTime = AfxGetTaskTime();
+	
+	return mCheckTime*60;
+}
+
+/*********************************************************
+函数说明：设置检测时间
+入参说明：
+出参说明：
+返回值  ：
+*********************************************************/
+void CSuperVPNApp::SetCheckTime(int time)
+{
+	AfxWriteTaskTime(TASK_CHECK_TIMER_VALUE);
+	mCheckTime = time*60;
+}
+
 
 /*********************************************************
 函数说明：节点重启定时器函数

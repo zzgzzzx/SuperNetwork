@@ -84,11 +84,14 @@ public:
 	//节点
 	CNodeGeneral *mPNode;
 	//hello服务
-	CHelloSrvThread mHelloSrv;
-	//http服务
-	//CHttpSrvThread mHttpSrv;
-	//身份识别管理类
-	//CIdentifySet mIdentifySet;
+	CHelloSrvThread *mPHelloSrv;
+	//定时任务间隔检测时间
+	int mCheckTime;
+
+	//获取检测时间
+	int GetCheckTime();
+	//设置检测时间
+	void SetCheckTime(int time);
 
 	//显示版本信息
 	virtual void ShowVersion()=0;

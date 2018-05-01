@@ -22,17 +22,9 @@ public:
 protected:	
 	//Node初始化
 	ndStatus MakeNodeInitReq();
-	//获取IP
-	ndStatus MakeNodeGetIPReq();	
 	//节点配置
 	ndStatus MakeNodeEnvSetReq();
-	ndStatus AnalysisNodeEnvSetRsp();	
-	//Node Hello
-	ndStatus MakeNodeHelloReq();
-	//获取服务器列表
-	ndStatus MakeServerListReq();	
-	//Node Hello Response
-	ndStatus AnalysisNodeHelloRsp();	
+	ndStatus AnalysisNodeEnvSetRsp();		
 };
 
 #endif //VPN_SRV_NODE_HTTPCLIENT_H

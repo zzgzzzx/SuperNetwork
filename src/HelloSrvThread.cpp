@@ -57,26 +57,11 @@ void CHelloSrvThread::ProcessVirtual(void)
 		return;
 	}
 
-	//增加定时Hello	
-	AfxInsertCircleTimer(TIMER_ID_NODE_HELLO_CHECK, TIMER_VALUE_NODE_HELLO_CHECK, NodeHelloFunc);
-
 	//接收数据包并处理
 	while(true)
 	{
 		RcvAndDealMsg();
 	}
-}
-
-/*********************************************************
-函数说明：Hello的定时器函数
-入参说明：
-出参说明：
-返回值  ：
-*********************************************************/
-void CHelloSrvThread::NodeHelloFunc(ndULong param)
-{
-	//need update by lewis
-	//AfxGetIdentifySet()->SendHelloAndCheck();
 }
 
 /*********************************************************
@@ -93,7 +78,7 @@ bool CHelloSrvThread::StartService()
 }
 
 /*********************************************************
-函数说明：接收并处理数据
+函数说明：接收并处理数据(ip地址都用网络序)
 入参说明：
 出参说明：
 返回值  ：
@@ -113,15 +98,13 @@ void CHelloSrvThread::RcvAndDealMsg()
 	sNP.lSrcIP = ip;
 	sNP.uSrcPort = port;
 
-	//need update by lewis
-	//CPacket *pkt = new CHelloPkt();
+	CPacket *pkt = GetNewPkt();
 	//设置接收包的内容
-	//pkt->SetRcvPktBuf((char*)sBuff, iRcvLen);
+	pkt->SetRcvPktBuf((char*)sBuff, iRcvLen);
 	//设置接收包的网络参数
-	//pkt->SetRcvNetParam(sNP);
+	pkt->SetRcvNetParam(sNP);
 	//把数据包丢进系统队列(也可以在此直接处理)
-	//AfxWriteDebugLog("SuperVPN run at [CSuperVPNApp::InitSystem] Recv Hello Pkt IP=[%s]",AfxHostIPToStr(ip));
-	
-	//AfxInsertPktToSysQue(pkt);	
+	AfxWriteDebugLog("SuperVPN run at [CSuperVPNApp::InitSystem] Recv Hello Pkt IP=[%s]", AfxNetIPToStr(ip));	
+	AfxInsertPktToSysQue(pkt);	
 }
 

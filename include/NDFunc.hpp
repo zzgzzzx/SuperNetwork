@@ -54,6 +54,10 @@ char *AfxGetNodeID();
 //节点密码文件读写
 void AfxWriteNodePwd(const char *nodepwd);
 char *AfxGetNodePwd();
+//检测任务文件读写
+void AfxWriteTaskTime(int time);
+int AfxGetTaskTime();
+
 
 //服务列表文件读写
 ndBool AfxGetServerList(list<SServerInfo> &mServers);

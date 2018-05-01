@@ -24,7 +24,7 @@ public:
 	void KBInit();
 	
 	//节点初始化
-	virtual ndStatus NodeInit();	
+	ndStatus NodeInit();	
 
 	//节点向服务器申请配置信息
 	ndStatus NodeEnvSet();

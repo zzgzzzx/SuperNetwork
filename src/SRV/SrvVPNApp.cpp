@@ -10,6 +10,7 @@
 #include "NDFunc.hpp"
 #include "NodeSrv.hpp"
 #include "HttpRunEnvCKSrv.hpp"
+#include "SrvHelloThread.hpp"
 
 /*********************************************************
 º¯ÊýËµÃ÷£º
@@ -20,6 +21,7 @@
 CSrvVPNApp::CSrvVPNApp()
 {
 	mPNode = new CNodeSrv();
+	mPHelloSrv = new CSrvHelloThread();
 }
 
 /*********************************************************

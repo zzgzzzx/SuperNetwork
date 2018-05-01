@@ -70,9 +70,9 @@ MD5_CTX *context;                                        /* context */
 /*MD5 分组更新操作. 继续一个MD5操作,处理另一个消息分组并更新context. */
 /*********************************************************************/
 void MD5Update (context, input, inputLen)
-MD5_CTX *context;                               /* context */
-const unsigned char *input;                     /* 输入分组*/
-unsigned int inputLen;                          /* 输入的分组的长度 */
+MD5_CTX *context;                         /* context */
+unsigned char *input;                     /* 输入分组*/
+unsigned int inputLen;                    /* 输入的分组的长度 */
 {
   unsigned int i, index, partLen;
 
@@ -83,7 +83,7 @@ unsigned int inputLen;                          /* 输入的分组的长度 */
   if ((context->count[0] += ((UINT4)inputLen << 3))
 
    < ((UINT4)inputLen << 3))
- context->count[1]++;
+  context->count[1]++;
   context->count[1] += ((UINT4)inputLen >> 29);
 
   partLen = 64 - index;
@@ -284,7 +284,7 @@ unsigned int len;
 /* 计算字符串的摘要并打印其值 */
 /******************************/
 void MD5(in,out,len)
-const char *in;
+char *in;
 unsigned char *out; 
 unsigned int len;
 {

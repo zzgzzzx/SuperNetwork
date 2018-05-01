@@ -6,15 +6,18 @@
 作者         :zhangzx 
 版本         :1.0 
 **********************************************************/
-#include "SrvHelloPkt.hpp"
+#include "UserHelloPkt.hpp"
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//数据包基类                 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 /*********************************************************
 函数说明：
 入参说明：
 出参说明：
 返回值  ：
 *********************************************************/
-CSrvHelloPkt::CSrvHelloPkt()
+CUserHelloPkt::CUserHelloPkt()
 {
 }
 
@@ -24,7 +27,7 @@ CSrvHelloPkt::CSrvHelloPkt()
 出参说明：
 返回值  ：
 *********************************************************/
-CSrvHelloPkt::~CSrvHelloPkt()
+CUserHelloPkt::~CUserHelloPkt()
 {
 
 }
@@ -35,10 +38,10 @@ CSrvHelloPkt::~CSrvHelloPkt()
 出参说明：
 返回值  ：
 *********************************************************/
-bool CSrvHelloPkt::DealWithPkt()
+bool CUserHelloPkt::DealWithPkt()
 {
-	//用户网关发出来的hello请求数据包处理,直接应答数据包给用户网关
-	SendHelloPkt();
+	//服务节点发出来的hello应答数据包处理,发给用户网关的IdentifySet类处理
+	//AfxGetIdentifySet()->DealRcvPkt(this);
 
 	return true;
 }

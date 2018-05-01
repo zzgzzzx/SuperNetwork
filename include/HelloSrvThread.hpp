@@ -12,6 +12,7 @@
 #include "BThread.hpp"
 #include "Udp.hpp"
 #include "NDStruct.hpp"
+#include "Packet.hpp"
 
 class CHelloSrvThread: public CBaseThread
 {
@@ -22,11 +23,11 @@ private:
 	bool StartService();
 	//接收并处理数据
 	void RcvAndDealMsg();
-	//节点hello
-	static void NodeHelloFunc(ndULong param);		
+	
 protected:
 	//线程处理函数
 	virtual void ProcessVirtual(void);
+	virtual CPacket *GetNewPkt()=0;
 public:
 	//构造函数
 	CHelloSrvThread();
