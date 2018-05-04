@@ -10,6 +10,8 @@
 #include "cJSON.h"
 #include "NDFunc.hpp"
 
+extern CBaseApp *gPSuperVPNApp;
+
 /*********************************************************
 函数说明：构造函数
 入参说明：Node(结点)

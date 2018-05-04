@@ -10,6 +10,8 @@
 #include "cJSON.h"
 #include "NDFunc.hpp"
 
+extern CBaseApp *gPSuperVPNApp;
+
 /*********************************************************
 函数说明：构造函数
 入参说明：Node(结点)
@@ -315,7 +317,7 @@ ndStatus CHttpUserNode::MakeBindServerReq(list<SBindInform> &ltBSer)
 	{
 	    sBI = *iter;
 		cJSON_AddItemToArray(devices, fmt = cJSON_CreateObject());
-    	cJSON_AddStringToObject(fmt, "deviceflag", sBI.sDeviceFlag);
+    	cJSON_AddStringToObject(fmt, "deviceflag", sBI.sDeviceFlag.c_str());
 		iter++;
 	}
 
@@ -423,7 +425,7 @@ ndStatus CHttpUserNode::MakeUnBindServerReq(SBindInform sBI)
 
 	cJSON_AddItemToObject(fmt, "devices", devices = cJSON_CreateArray());		
 	cJSON_AddItemToArray(devices, fmt = cJSON_CreateObject());
-    cJSON_AddStringToObject(fmt, "deviceflag", sBI.sDeviceFlag);
+    cJSON_AddStringToObject(fmt, "deviceflag", sBI.sDeviceFlag.c_str());
 
 
     out = cJSON_Print(root);
@@ -542,7 +544,7 @@ ndStatus CHttpUserNode::ReleaseIdentifyService(SBindInform sBI)
 出参说明：无
 返回值  ：无
 *********************************************************/
-ndStatus CHttpGeneral::ServiceErrorNotify(SBindInform &sBindInform)
+ndStatus CHttpUserNode::ServiceErrorNotify(SBindInform &sBindInform)
 {
     //组装数据包
     ndStatus  ret = MakeServiceErrorReq(sBindInform);

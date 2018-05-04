@@ -10,6 +10,8 @@
 #define __USER_VPN_APP_HPP__
 
 #include "BaseApp.hpp"
+#include "HttpSrvThread.hpp"
+#include "IdentifySet.hpp"
 
 //**********************************
 //CSrvVPNApp工程类                       
@@ -32,6 +34,8 @@ public:
 	ndStatus RunEnvCheck(char *appname, bool ifOnlyCheckUpgrade);	
 	//获取身份列表
 	CIdentifySet *GetIdentifySet();
+
+	ndString GetDeviceType();
 
 	//构造函数
 	CUserVPNApp();

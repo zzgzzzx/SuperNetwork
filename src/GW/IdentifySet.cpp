@@ -39,7 +39,7 @@ CIdentifySet::~CIdentifySet()
 出参说明：
 返回值  ：
 *********************************************************/
-bool CIdentifySet::DealRcvPkt(CHelloPkt *pkt)
+bool CIdentifySet::DealRcvPkt(CUserHelloPkt *pkt)
 {
 	//接收到服务节点的数据包，针对服务节点的IP进行查找
 	ServiceInform *pSI;
@@ -181,7 +181,7 @@ void CIdentifySet::SendHelloAndCheck()
 		}
 
 		//发送Hello
-		CHelloPkt hellPkt;
+		CUserHelloPkt hellPkt;
 		SNetParam sNP;
 		sNP.lDesIP = inet_addr(pService->sServiceIP.c_str());
 		sNP.uDesPort = HELLO_SRV_LOCAL_PORT;

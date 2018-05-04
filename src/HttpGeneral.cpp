@@ -116,7 +116,7 @@ ndStatus CHttpGeneral::MakeNodeGetIPReq()
     char *out;
     cJSON *root, *fmt, *actions;
 
-	mSrvURL = URL_SERVER_NODE_GETIP;
+	mSrvURL = URL_NODE_GETIP;
     //组装消息体
     root = cJSON_CreateObject();
     AfxWriteDebugLog("SuperVPN run at [CHttpSrvNode::MakeNodeGetIPReq] Make Init actions");
@@ -477,7 +477,7 @@ ndStatus CHttpGeneral::PkgSendAndRecv(ndString url)
         return ND_ERROR_INVALID_PARAM;
     }
 
-    AfxWriteDebugLog("SuperVPN run at[CHttpGeneral::PkgSendAndRecv] Begin post data\n ServerURL=[%s]\n [%s]", sSrvUrl.c_str(), mSendBuf.c_str());
+    AfxWriteDebugLog("SuperVPN run at[CHttpGeneral::PkgSendAndRecv] Begin post data\n ServerURL=[%s]\n [%s]", host.c_str(), mSendBuf.c_str());
 rePost:
     //发送服务端并接收返回
     CURLcode rtn = Post(host.c_str(), mSendBuf.c_str(), mRcvBuf);
@@ -556,7 +556,8 @@ ndString CHttpGeneral::GenerateAuthHeader()
 		strcmp(mSrvURL.c_str(), URL_USER_NODE_INIT) == 0 ||
 		strcmp(mSrvURL.c_str(), URL_SERVER_NODE_SET) == 0 ||
 		strcmp(mSrvURL.c_str(), URL_USER_NODE_SET) == 0 ||
-		strcmp(mSrvURL.c_str(), URL_NODE_ENV_CHECK) == 0 ||
+		strcmp(mSrvURL.c_str(), URL_SERVER_NODE_ENV_CHECK) == 0 ||
+		strcmp(mSrvURL.c_str(), URL_USER_NODE_ENV_CHECK) == 0 ||
 		strcmp(mSrvURL.c_str(), URL_NODE_GET_SERVER_LIST) == 0 ||
 		strcmp(mSrvURL.c_str(), URL_NODE_GET_SERVICES) == 0 ||
 		strcmp(mSrvURL.c_str(), URL_NODE_RELEASE_SERVICES) == 0 ||

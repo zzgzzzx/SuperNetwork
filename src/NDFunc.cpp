@@ -209,13 +209,13 @@ bool AfxGetNextSrvUrl(SServerInfo &serverInfo)
 			bakInfo = *gITBakServer;
 			curInfo = *gITCurServer;
 
-			AfxWriteDebugLog("SuperVPN run at [AfxGetNextSrvUrl] cur IP=[%s]", curInfo.sServerIP.c_str());
-			AfxWriteDebugLog("SuperVPN run at [AfxGetNextSrvUrl] bak IP=[%s]", bakInfo.sServerIP.c_str());
+			AfxWriteDebugLog("SuperVPN run at [AfxGetNextSrvUrl] cur host=[%s]", curInfo.sSrvURL.c_str());
+			AfxWriteDebugLog("SuperVPN run at [AfxGetNextSrvUrl] bak host=[%s]", bakInfo.sSrvURL.c_str());
 
-			if(curInfo.sServerIP != bakInfo.sServerIP)
+			if(curInfo.sSrvURL != bakInfo.sSrvURL)
 			{	
 		        serverInfo = *gITCurServer;
-				AfxWriteDebugLog("SuperVPN run at [AfxGetNextSrvUrl] Get new server ip=[%s]", serverInfo.sServerIP.c_str());
+				AfxWriteDebugLog("SuperVPN run at [AfxGetNextSrvUrl] Get new host=[%s]", serverInfo.sSrvURL.c_str());
 		        return true;
 			}
     }
@@ -367,8 +367,8 @@ ndString ServerListToString(list<SServerInfo> &mServers)
 	{
 		sInfo = *iter;
     	cJSON_AddItemToArray(actions, fmt = cJSON_CreateObject());
-    	cJSON_AddStringToObject(fmt, "ip", sInfo.sServerIP.c_str());
-		cJSON_AddNumberToObject(fmt, "port", sInfo.sServerPort);		
+    	cJSON_AddStringToObject(fmt, "host", sInfo.sSrvURL.c_str());
+		cJSON_AddNumberToObject(fmt, "weight", sInfo.iWeight);		
 	}
 	
     out = cJSON_Print(root);
@@ -410,15 +410,15 @@ void StringToServerList(ndString json, list<SServerInfo> &mServers)
         cJSON *serverlist = serverArray->child;
 		while(serverlist != NULL)
 		{
-		    if(cJSON_GetObjectItem(serverlist, "ip") != NULL &&
-		       cJSON_GetObjectItem(serverlist, "ip")->valuestring != NULL)
-		        sInfo.sServerIP = cJSON_GetObjectItem(serverlist, "ip")->valuestring;
-			AfxWriteDebugLog("SuperVPN run at [StringToServerList] ip=[%s]", sInfo.sServerIP.c_str());
+		    if(cJSON_GetObjectItem(serverlist, "host") != NULL &&
+		       cJSON_GetObjectItem(serverlist, "host")->valuestring != NULL)
+		        sInfo.sSrvURL = cJSON_GetObjectItem(serverlist, "host")->valuestring;
+			AfxWriteDebugLog("SuperVPN run at [StringToServerList] host=[%s]", sInfo.sSrvURL.c_str());
 
-		    if(cJSON_GetObjectItem(serverlist, "port") != NULL &&
-		       cJSON_GetObjectItem(serverlist, "port")->valuestring != NULL)
-		        sInfo.sServerPort = cJSON_GetObjectItem(serverlist, "port")->valueint;
-			AfxWriteDebugLog("SuperVPN run at [StringToServerList] port=[%d]", sInfo.sServerPort);
+		    if(cJSON_GetObjectItem(serverlist, "weight") != NULL &&
+		       cJSON_GetObjectItem(serverlist, "weight")->valuestring != NULL)
+		        sInfo.iWeight = cJSON_GetObjectItem(serverlist, "weight")->valueint;
+			AfxWriteDebugLog("SuperVPN run at [StringToServerList] iWeight=[%d]", sInfo.iWeight);
 
 			mServers.push_back(sInfo);
 
@@ -455,16 +455,13 @@ ndBool AfxGetServerList(list<SServerInfo> &mServers)
 	//初始化列表信息
 	SServerInfo server;
 	
-	server.sServerIP = "n001.zrdx.com";
-	server.sServerPort = 5213;
+	server.sSrvURL= "http://n001.zrdx.com:5213";
 	mServers.push_back(server);
 
-	server.sServerIP = "n002.zrdx.com";
-	server.sServerPort = 5213;
+	server.sSrvURL= "http://n002.zrdx.com:5213";
 	mServers.push_back(server);	
 
-	server.sServerIP = "n003.zrdx.com";
-	server.sServerPort = 5213;
+	server.sSrvURL= "http://n003.zrdx.com:5213";
 	mServers.push_back(server);	
 	
 	//检测/etc/network目录是否存在
@@ -484,7 +481,7 @@ ndBool AfxGetServerList(list<SServerInfo> &mServers)
 	{
 		char cmd[1024]={0};
 		sprintf(cmd, "rm %s*", SERVER_LIST_FILE_NAME);
-		AfxExecCmd(const char * cmd)
+		AfxExecCmd(cmd);
 		if ((pFile = fopen(SERVER_LIST_FILE_NAME, "w+")) == NULL)
 		{
 			AfxWriteDebugLog("SuperVPN run at [AfxGetServerList] Create [%s] File Fail", SERVER_LIST_FILE_NAME);

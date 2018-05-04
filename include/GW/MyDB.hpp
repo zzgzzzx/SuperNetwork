@@ -8,9 +8,7 @@
 #ifndef __MYBD_H__  
 #include<iostream>  
 #include<string>  
-#ifdef GENERAL_NODE_USER_APP
 #include<mysql/mysql.h>  
-#endif
 #include"Inform.hpp"
 
 using namespace std;  
@@ -25,11 +23,9 @@ public:
 
 	bool GetIndetifyMac(list<SBindInform> &ltSI);
 private:  
-	#ifdef GENERAL_NODE_USER_APP
     MYSQL *connection;  
     MYSQL_RES *result;  
     MYSQL_ROW row;  
-	#endif
 };  
   
 #endif 

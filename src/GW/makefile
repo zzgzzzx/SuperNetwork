@@ -4,7 +4,7 @@ CC = $(CROSS)gcc
 CPP = $(CROSS)g++  
 LD = $(CROSS)ld
 
-DEFINC = -I../../include -I../../include/cJson -I/usr/include/curl -I../../include/SRV
+DEFINC = -I../../include -I../../include/cJson -I/usr/include/curl -I../../include/GW
 INCS += $(DEFINC)  
 
 CSRCS = $(wildcard ./*.c ./../*.c)  
@@ -19,7 +19,7 @@ CFLAGS += -w -o2 -Wall -g -fPIC
 CPPFLAGS += $(INCS)  
 CPPFLAGS += -w -o2 -Wall -g -fPIC  
 
-LDFLAGS += -lcurl -pthread
+LDFLAGS += -lcurl -pthread -lmysqlclient
   
 all:$(BIN)  
 $(COBJS) : %.o: %.c  

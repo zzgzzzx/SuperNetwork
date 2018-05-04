@@ -9,6 +9,7 @@
 #include "UserHelloThread.hpp"
 #include "NDFunc.hpp"
 #include "HelloPkt.hpp"
+#include "UserHelloPkt.hpp"
 
 /*********************************************************
 函数说明：构造函数
@@ -63,7 +64,10 @@ void CUserHelloThread::ProcessVirtual(void)
 *********************************************************/
 CPacket* CUserHelloThread::GetNewPkt()
 {
-	return new CUserHelloPkt();
+	CUserHelloPkt *pkt;
+	pkt = new CUserHelloPkt();
+
+	return pkt;
 }
 
 

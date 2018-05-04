@@ -22,6 +22,8 @@ public:
     virtual ~CNodeSrv();
 	//坑宝初始化
 	void KBInit();
+	//重置定时任务时间
+	void KBResetTimer();
 	
 	//节点初始化
 	ndStatus NodeInit();	

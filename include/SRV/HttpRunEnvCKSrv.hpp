@@ -21,6 +21,10 @@ public:
 private:
 	//iptable检测
 	virtual ndStatus IPTableCheck();
+	//check请求
+	ndStatus MakeCheckReq();	
+	//Check应答
+	ndStatus AnalysisCheckRsp();	
 };
 
 #endif //VPN_SRV_NODE_HTTPCLIENT_H

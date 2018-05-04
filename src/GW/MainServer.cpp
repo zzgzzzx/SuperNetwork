@@ -6,13 +6,13 @@
 ×÷Õß         :Lewis
 °æ±¾         :1.0 
 **********************************************************/
-#include "SrvVPNApp.hpp"
+#include "UserVPNApp.hpp"
 
 CSuperVPNApp *gPSuperVPNApp;
 
 int main(int argc,char *argv[])
 {
-	gPSuperVPNApp = new CSrvVPNApp();
+	gPSuperVPNApp = new CUserVPNApp();
 	gPSuperVPNApp->Run(argc, argv);
 
 	return true;

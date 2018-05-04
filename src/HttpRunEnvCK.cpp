@@ -23,48 +23,11 @@ extern CBaseApp *gPSuperVPNApp;
 *********************************************************/
 CHttpRunEvnCK::CHttpRunEvnCK(CNodeBase *node):CHttpGeneral(node)
 {
-	mSrvURL = URL_NODE_ENV_CHECK;
 	mRunEnvCK.node.iVerCode = 0;
 	mRunEnvCK.node.mDownLodURL.clear();
 	mRunEnvCK.deamon.mDownLodURL.clear();
 	mRunEnvCK.edge.mDownLodURL.clear();
 	mRunEnvCK.iptable.mDownLodURL.clear();
-}
-
-/*********************************************************
-函数说明：发送请求数据包
-入参说明：无
-出参说明：无
-返回值  ：无
-*********************************************************/
-ndStatus CHttpRunEvnCK::MakeCheckReq()
-{
-    char *out, subtype[64]={0};
-    cJSON *root, *fmt, *actions, *arugments;
-
-    //组装消息体
-    root = cJSON_CreateObject();
-    AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::MakeCheckReq] Make check actions");
-
-    cJSON_AddItemToObject(root, "actions", actions = cJSON_CreateArray());
-    cJSON_AddItemToArray(actions, fmt = cJSON_CreateObject());
-    cJSON_AddStringToObject(fmt, "action", SUPER_ACTION_NODE_ENV_CHECK);
-
-	CSuperVPNApp *pSuperVPNApp = dynamic_cast<CSuperVPNApp*> (gPSuperVPNApp);
-	if(pSuperVPNApp != NULL) strcpy(subtype, pSuperVPNApp->GetDeviceType().c_str());
-	
-	cJSON_AddItemToObject(actions, "devparams", arugments = cJSON_CreateArray());
-	cJSON_AddItemToArray(arugments, fmt = cJSON_CreateObject());
-    cJSON_AddStringToObject(fmt, "subtype", subtype);
-	cJSON_AddNumberToObject(fmt, "checktime", pSuperVPNApp->GetCheckTime());
-
-    out = cJSON_Print(root);
-    mSendBuf = out;
-
-    cJSON_Delete(root);
-    free(out);
-	
-	return ND_SUCCESS;
 }
 
 /*********************************************************
@@ -105,17 +68,34 @@ ndStatus CHttpRunEvnCK::AnalysisCheckRsp()
         {
             cJSON *repliceslist = replices->child;
 
+			//取reinit
+			cJSON *objType = cJSON_GetObjectItem(repliceslist, "reinit") ;
+			if(objType != NULL)
+			{
+				if(cJSON_GetObjectItem(objType, "init") != NULL &&
+						cJSON_GetObjectItem(objType, "init")->valuestring != NULL)
+				{
+				        ndString init = cJSON_GetObjectItem(objType, "init")->valuestring;
+						if (init == "true")
+						{
+							remove(NODEID_FILE_NAME);
+							remove(NODEPWD_FILE_NAME);
+							return ND_NEED_RESTART;
+						}
+				}
+			}			
+
 			//取新的id
-			cJSON *objType = cJSON_GetObjectItem(repliceslist, "newnodeid") ;
+			objType = cJSON_GetObjectItem(repliceslist, "newnodeid") ;
 			if(objType != NULL)
 			{
 				if(cJSON_GetObjectItem(objType, "newid") != NULL &&
-						cJSON_GetObjectItem(objType, "newis")->valueuint != NULL)
-					{
+						cJSON_GetObjectItem(objType, "newid")->valuestring != NULL)
+				{
 				        ndString newid= cJSON_GetObjectItem(objType, "newid")->valuestring;
 						AfxWriteNodeID(newid.c_str());
 						mPNode->SetNodeID(newid);
-					}
+				}
 			}
 
 			//取新的检测时间
@@ -123,6 +103,7 @@ ndStatus CHttpRunEvnCK::AnalysisCheckRsp()
 			if(objType != NULL)
 			{
 				//如果是服务节点坑宝设备的，需要进行重置处理
+				//这个目前只有在服务节点有处理
 			}
 			
 			//取node信息

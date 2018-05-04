@@ -11,6 +11,10 @@
 #include "NDFunc.hpp"
 #include "HttpFileDown.hpp"
 #include "md5.h"
+#include "BaseApp.hpp"
+#include "NodeSrv.hpp"
+
+extern CBaseApp *gPSuperVPNApp;
 
 /*********************************************************
 函数说明：构造函数
@@ -20,8 +24,233 @@
 *********************************************************/
 CHttpRunEvnCKSrv::CHttpRunEvnCKSrv(CNodeBase *node):CHttpRunEvnCK(node)
 {
+	mSrvURL = URL_SERVER_NODE_ENV_CHECK;
 	mLocalVersion = SUPER_VPN_CLIENT_VER_SERVER;
 }
+
+/*********************************************************
+函数说明：发送请求数据包
+入参说明：无
+出参说明：无
+返回值  ：无
+*********************************************************/
+ndStatus CHttpRunEvnCKSrv::MakeCheckReq()
+{
+    char *out, subtype[64]={0};
+    cJSON *root, *fmt, *actions, *arugments;
+
+    //组装消息体
+    root = cJSON_CreateObject();
+    AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::MakeCheckReq] Make check actions");
+
+    cJSON_AddItemToObject(root, "actions", actions = cJSON_CreateArray());
+    cJSON_AddItemToArray(actions, fmt = cJSON_CreateObject());
+    cJSON_AddStringToObject(fmt, "action", SUPER_ACTION_SERVER_NODE_ENV_CHECK);
+
+	CSuperVPNApp *pSuperVPNApp = dynamic_cast<CSuperVPNApp*> (gPSuperVPNApp);
+	if(pSuperVPNApp != NULL) strcpy(subtype, pSuperVPNApp->GetDeviceType().c_str());
+	
+	cJSON_AddItemToObject(actions, "devparams", arugments = cJSON_CreateArray());
+	cJSON_AddItemToArray(arugments, fmt = cJSON_CreateObject());
+    cJSON_AddStringToObject(fmt, "subtype", subtype);
+	cJSON_AddNumberToObject(fmt, "checktime", pSuperVPNApp->GetCheckTime());
+
+    out = cJSON_Print(root);
+    mSendBuf = out;
+
+    cJSON_Delete(root);
+    free(out);
+	
+	return ND_SUCCESS;
+}
+
+/*********************************************************
+函数说明：升级检测解包
+入参说明：无
+出参说明：无
+返回值  ：无
+*********************************************************/
+ndStatus CHttpRunEvnCKSrv::AnalysisCheckRsp()
+{
+	AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::AnalysisCheckRspAndDeal] begin");
+
+    cJSON *root;
+	int iErrCode;
+
+    root = cJSON_Parse(mRcvBuf.c_str());
+    if (!root)
+    {
+        AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::AnalysisCheckRspAndDeal] Error before: [%s]", cJSON_GetErrorPtr());
+        return ND_ERROR_INVALID_RESPONSE;
+    }
+
+    cJSON *actionsArray = cJSON_GetObjectItem(root, "actions");
+    if(actionsArray != NULL)
+    {
+
+        cJSON *actionslist = actionsArray->child;
+
+        iErrCode = cJSON_GetObjectItem(actionslist, "error")->valueint;
+        if(iErrCode != 0)
+		{
+			cJSON_Delete(root);
+			return ND_ERROR_INVALID_RESPONSE;
+        }		
+        
+        cJSON *replices = cJSON_GetObjectItem(root, "replies");
+        if(replices != NULL)
+        {
+            cJSON *repliceslist = replices->child;
+
+			//取新的id
+			cJSON *objType = cJSON_GetObjectItem(repliceslist, "newnodeid") ;
+			if(objType != NULL)
+			{
+				if(cJSON_GetObjectItem(objType, "newid") != NULL &&
+						cJSON_GetObjectItem(objType, "newid")->valuestring != NULL)
+				{
+				        ndString newid= cJSON_GetObjectItem(objType, "newid")->valuestring;
+						AfxWriteNodeID(newid.c_str());
+						mPNode->SetNodeID(newid);
+				}
+			}
+
+			//取新的检测时间
+			objType = cJSON_GetObjectItem(repliceslist, "newchecktime") ;
+			if(objType != NULL)
+			{
+				//如果是服务节点坑宝设备的，需要进行重置处理
+				if(cJSON_GetObjectItem(objType, "checktime") != NULL &&
+						cJSON_GetObjectItem(objType, "checktime")->valueint!= NULL)
+				{
+				        int checktime= cJSON_GetObjectItem(objType, "checktime")->valueint;
+						AfxWriteTaskTime(checktime);
+						CNodeSrv *pNodeSrv = dynamic_cast<CNodeSrv*> (mPNode);
+						pNodeSrv->KBResetTimer();
+				}				
+			}
+			
+			//取node信息
+			objType = cJSON_GetObjectItem(repliceslist, "node") ;
+			if(objType != NULL)
+			{
+			    if(cJSON_GetObjectItem(objType, "version") != NULL &&
+					cJSON_GetObjectItem(objType, "version")->valueuint != NULL)
+			        mRunEnvCK.node.iVerCode = cJSON_GetObjectItem(objType, "version")->valueuint;
+
+			    if(cJSON_GetObjectItem(objType, "md5") != NULL &&
+					cJSON_GetObjectItem(objType, "md5")->valuestring != NULL)
+			        mRunEnvCK.node.sMD5 = cJSON_GetObjectItem(objType, "md5")->valuestring;	
+
+			       
+			    cJSON *URLS = cJSON_GetObjectItem(objType, "download");
+			    if(URLS != NULL)
+			    {
+					cJSON *url = URLS->child;
+
+					AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::AnalysisCheckRspAndDeal] Get URL");
+					while(url != NULL)
+					{
+					    if(cJSON_GetObjectItem(url, "url") != NULL &&
+					       cJSON_GetObjectItem(url, "url")->valuestring != NULL)
+					    {
+					        mRunEnvCK.node.mDownLodURL.push_back(cJSON_GetObjectItem(url, "url")->valuestring);
+							AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::AnalysisCheckRspAndDeal] url=[%s]",cJSON_GetObjectItem(url, "url")->valuestring);
+					    }
+					    url = url->next;
+					}	       
+			    }		
+			}
+
+			//取checknode
+			objType = cJSON_GetObjectItem(repliceslist, "checknode") ;
+			if(objType != NULL)
+			{
+			    if(cJSON_GetObjectItem(objType, "md5") != NULL &&
+					cJSON_GetObjectItem(objType, "md5")->valuestring != NULL)
+			        mRunEnvCK.deamon.sMD5 = cJSON_GetObjectItem(objType, "md5")->valuestring;	
+
+			       
+			    cJSON *URLS = cJSON_GetObjectItem(objType, "download");
+			    if(URLS != NULL)
+			    {
+					cJSON *url = URLS->child;
+
+					AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::AnalysisCheckRspAndDeal] Get URL");
+					while(url != NULL)
+					{
+					    if(cJSON_GetObjectItem(url, "url") != NULL &&
+					       cJSON_GetObjectItem(url, "url")->valuestring != NULL)
+					    {
+					        mRunEnvCK.deamon.mDownLodURL.push_back(cJSON_GetObjectItem(url, "url")->valuestring);
+							AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::AnalysisCheckRspAndDeal] url=[%s]",cJSON_GetObjectItem(url, "url")->valuestring);
+					    }
+					    url = url->next;
+					}	       
+			    }		
+			}	
+
+			//取edge
+			objType = cJSON_GetObjectItem(repliceslist, "edge") ;
+			if(objType != NULL)
+			{
+			    if(cJSON_GetObjectItem(objType, "md5") != NULL &&
+					cJSON_GetObjectItem(objType, "md5")->valuestring != NULL)
+			        mRunEnvCK.edge.sMD5 = cJSON_GetObjectItem(objType, "md5")->valuestring;	
+
+			       
+			    cJSON *URLS = cJSON_GetObjectItem(objType, "download");
+			    if(URLS != NULL)
+			    {
+					cJSON *url = URLS->child;
+
+					AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::AnalysisCheckRspAndDeal] Get URL");
+					while(url != NULL)
+					{
+					    if(cJSON_GetObjectItem(url, "url") != NULL &&
+					       cJSON_GetObjectItem(url, "url")->valuestring != NULL)
+					    {
+					        mRunEnvCK.edge.mDownLodURL.push_back(cJSON_GetObjectItem(url, "url")->valuestring);
+							AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::AnalysisCheckRspAndDeal] url=[%s]",cJSON_GetObjectItem(url, "url")->valuestring);
+					    }
+					    url = url->next;
+					}	       
+			    }		
+			}	
+			//取iptable
+			objType = cJSON_GetObjectItem(repliceslist, "iptable") ;
+			if(objType != NULL)
+			{
+			    if(cJSON_GetObjectItem(objType, "md5") != NULL &&
+					cJSON_GetObjectItem(objType, "md5")->valuestring != NULL)
+			        mRunEnvCK.iptable.sMD5 = cJSON_GetObjectItem(objType, "md5")->valuestring;	
+
+			       
+			    cJSON *URLS = cJSON_GetObjectItem(objType, "download");
+			    if(URLS != NULL)
+			    {
+					cJSON *url = URLS->child;
+
+					AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::AnalysisCheckRspAndDeal] Get URL");
+					while(url != NULL)
+					{
+					    if(cJSON_GetObjectItem(url, "url") != NULL &&
+					       cJSON_GetObjectItem(url, "url")->valuestring != NULL)
+					    {
+					        mRunEnvCK.iptable.mDownLodURL.push_back(cJSON_GetObjectItem(url, "url")->valuestring);
+							AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::AnalysisCheckRspAndDeal] url=[%s]",cJSON_GetObjectItem(url, "url")->valuestring);
+					    }
+					    url = url->next;
+					}	       
+			    }		
+			}		
+        }
+    }
+ 	cJSON_Delete(root);
+
+	return ND_SUCCESS;
+}
+
 
 /*********************************************************
 函数说明：iptable检测

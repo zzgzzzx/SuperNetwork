@@ -175,10 +175,12 @@ bool CSuperVPNApp::InitSystem(char *appname, bool ifOnlyCheckUpgrade)
 
 	//系统运行环境检测(包括edge\iptable\node-version)
 	AfxWriteDebugLog("SuperVPN run at [CSuperVPNApp::InitSystem] RunEnvCheck");
-	while(RunEnvCheck(appname, ifOnlyCheckUpgrade) != ND_SUCCESS)
+	ndStatus ret = RunEnvCheck(appname, ifOnlyCheckUpgrade);
+	while(ret != ND_SUCCESS)
 	{
-		if(ifOnlyCheckUpgrade) return false;
+		if(ifOnlyCheckUpgrade || ret == ND_NEED_RESTART) return false;
 		sleep(8);
+		ret = RunEnvCheck(appname, ifOnlyCheckUpgrade);
 	}
 	
 	//如果只是检测升级的，检测完成直接退出
@@ -214,12 +216,6 @@ ndStatus CSuperVPNApp::NodeInitCheck()
 	//如果存在，则读出编号，如果不存在，进行申请
 	char *nodeid = AfxGetNodeID();
 	if(nodeid == NULL){
-		//ndStatus ret = mPNode->GetIP();
-		//if(ret != ND_SUCCESS)
-		//{
-		//	AfxWriteDebugLog("SuperVPN run at [CSuperVPNApp::NodeInitCheck] GetIP Err Ret=[%d]", ret);	
-		//	return ret;
-		//}
 		return mPNode->NodeInit();
 	}
 
@@ -299,14 +295,14 @@ CSuperVPNApp::~CSuperVPNApp()
 int CSuperVPNApp::GetCheckTime()
 {
 	//如果时间的文件不存在，则进行用默认时间写入时间文件
-	if(AfxFileExist(TASK_CHECK_FILE_NAME))
+	if(!AfxFileExist(TASK_CHECK_FILE_NAME))
 	{
 		AfxWriteTaskTime(TASK_CHECK_TIMER_VALUE);
 	}
 
 	mCheckTime = AfxGetTaskTime();
 	
-	return mCheckTime*60;
+	return mCheckTime;
 }
 
 /*********************************************************
@@ -317,8 +313,8 @@ int CSuperVPNApp::GetCheckTime()
 *********************************************************/
 void CSuperVPNApp::SetCheckTime(int time)
 {
-	AfxWriteTaskTime(TASK_CHECK_TIMER_VALUE);
-	mCheckTime = time*60;
+	AfxWriteTaskTime(time);
+	mCheckTime = time;
 }
 
 

@@ -28,7 +28,7 @@ CUserVPNApp::CUserVPNApp()
 出参说明：
 返回值  ：
 *********************************************************/
-CUserVPNApp::~CUserVPNAppp()
+CUserVPNApp::~CUserVPNApp()
 {
 
 }
@@ -85,6 +85,17 @@ ndStatus CUserVPNApp::RunEnvCheck(char *appname, bool ifOnlyCheckUpgrade)
 CIdentifySet *CUserVPNApp::GetIdentifySet()
 {
 	return &mIdentifySet;
+}
+
+/*********************************************************
+函数说明：获取设备类型
+入参说明：
+出参说明：
+返回值  ：
+*********************************************************/
+ndString CUserVPNApp::GetDeviceType()
+{
+	return "";
 }
 
 

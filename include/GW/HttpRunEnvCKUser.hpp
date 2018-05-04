@@ -9,7 +9,7 @@
 #include "NDType.hpp"
 #include "HttpRunEnvCK.hpp"
 #include "NodeBase.hpp"
-
+#include "BaseApp.hpp"
 
 /**
  * CHttpRunEvnCKUser Class
@@ -18,6 +18,9 @@ class CHttpRunEvnCKUser : public CHttpRunEvnCK
 {
 public:
 	CHttpRunEvnCKUser(CNodeBase *node);	
+private:
+	//check«Î«Û
+	ndStatus MakeCheckReq();		
 };
 
 #endif //VPN_SRV_NODE_HTTPCLIENT_H

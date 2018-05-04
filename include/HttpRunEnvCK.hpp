@@ -23,12 +23,6 @@ public:
 	ndStatus BeginCheck(char *appname, bool ifOnlyCheckUpgrade);	
 	
 private:
-	//检测数据
-	SRunEnvCKSt mRunEnvCK;
-	//check请求
-	virtual ndStatus MakeCheckReq();
-	//Check应答
-	virtual ndStatus AnalysisCheckRsp();	
 	//edge检测
 	ndStatus EdgeCheck();
 	//deamon检测
@@ -43,8 +37,14 @@ private:
 protected:
 	//当前版本号
 	int mLocalVersion;	
+	//检测数据
+	SRunEnvCKSt mRunEnvCK;	
 	//iptable检测
 	virtual ndStatus IPTableCheck();
+	//check请求
+	virtual ndStatus MakeCheckReq() = 0;	
+	//Check应答
+	virtual ndStatus AnalysisCheckRsp();		
 };
 
 #endif //VPN_SRV_NODE_HTTPCLIENT_H

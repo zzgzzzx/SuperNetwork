@@ -19,15 +19,15 @@ class CHelloSrvThread: public CBaseThread
 private:
 	//服务器socket
 	CUdpSvr mSrvSkt;
-	//启动服务socket
-	bool StartService();
-	//接收并处理数据
-	void RcvAndDealMsg();
 	
 protected:
 	//线程处理函数
 	virtual void ProcessVirtual(void);
 	virtual CPacket *GetNewPkt()=0;
+	//启动服务socket
+	bool StartService();	
+	//接收并处理数据
+	void RcvAndDealMsg();	
 public:
 	//构造函数
 	CHelloSrvThread();

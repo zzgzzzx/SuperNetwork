@@ -10,7 +10,7 @@
 #define __IDENTIFY_SET_HPP__
 
 #include "Set.hpp"
-#include "HelloPkt.hpp"
+#include "UserHelloPkt.hpp"
 
 /*
  *	用户身份识别码为key---对象
@@ -43,7 +43,7 @@ public:
 	SBindInform *FindItemByMac(ndString mac);
 
 	//接收处理数据包
-	bool DealRcvPkt(CHelloPkt *pkt);
+	bool DealRcvPkt(CUserHelloPkt *pkt);
 
 	//从网关配置数据库中读取MAC与身份的识别码并处理业务
 	bool InitIdentifyFromGW();

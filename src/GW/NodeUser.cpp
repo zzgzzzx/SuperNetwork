@@ -9,6 +9,7 @@
 #include "NodeUser.hpp"
 #include "HttpUserNode.hpp"
 #include "NDFunc.hpp"
+#include "UserVPNApp.hpp"
 
 extern CSuperVPNApp *gPSuperVPNApp;
 
@@ -122,7 +123,8 @@ ndStatus CNodeUser::RemoveEdgeAndRoute(SBindInform BI)
 ndStatus CNodeUser::ServiceErrorNotify(SBindInform &sBindInform)
 {
 	//获取身份与出口的绑定信息	
-    ndStatus ret = mPHttpClient->ServiceErrorNotify(sBindInform);
+	CHttpUserNode *pHttpUser = dynamic_cast<CHttpUserNode *>(mPHttpClient);
+    ndStatus ret = pHttpUser->ServiceErrorNotify(sBindInform);
 	if (ret != ND_SUCCESS)
 	{
 		AfxWriteDebugLog("SuperVPN run at [CNodeUser::ServiceErrorNotify] ErrorCode=[%d]", ret);		
@@ -148,8 +150,7 @@ ndStatus CNodeUser::BindIdentifyService(SBindInform sBindInform)
 ndStatus CNodeUser::BindIdentifyService(list<SBindInform> ltBSer)
 {
 	//获取身份与出口的绑定信息	
-	CHttpUserNode *pHttpUser = dynamic_cast<CHttpGeneral *>(mPHttpClient);
-	
+	CHttpUserNode *pHttpUser = dynamic_cast<CHttpUserNode *>(mPHttpClient);
     ndStatus ret = pHttpUser->GetIdentifyService(ltBSer);
 	if (ret != ND_SUCCESS)
 	{

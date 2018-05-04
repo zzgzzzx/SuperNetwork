@@ -139,8 +139,8 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 /*---------------------------------------------------------------------------------------
 //升级文件的临时文件名
 -----------------------------------------------------------------------------------------*/
-#define VPN_UPGRADE_FILE_NAME  "/dev/shm/upgrade_SuperVPN_app"
-#define VPN_UPGRADE_TEMP_FILE_NAME  "/dev/shm/upgrade_SuperVPN_app_tmp"
+#define VPN_UPGRADE_FILE_NAME  "/tmp/upgrade_SuperVPN_app"
+#define VPN_UPGRADE_TEMP_FILE_NAME  "/tmp/upgrade_SuperVPN_app_tmp"
 
 #define VPN_EXE_FILE_NAME  "SuperVPN"
 #define VPN_EXE_PATH_NAME  "/usr/bin/SuperVPN"
@@ -168,7 +168,7 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 /*---------------------------------------------------------------------------------------
 //服务节点VPN版本号
 -----------------------------------------------------------------------------------------*/
-#define SUPER_VPN_CLIENT_VER_SERVER 1003
+#define SUPER_VPN_CLIENT_VER_SERVER 1005
 
 /*---------------------------------------------------------------------------------------
 //用户网关节点VPN版本号
@@ -235,10 +235,11 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 #define URL_USER_NODE_SET "/uns/"
 
 //run-env-check
-#define URL_NODE_ENV_CHECK "/ec/"
+#define URL_SERVER_NODE_ENV_CHECK "/pec/"
+#define URL_USER_NODE_ENV_CHECK "/uec/"
+
 //server-list-inform
 #define URL_NODE_GET_SERVER_LIST "/sli/"
-
 //user-node-get-services
 #define URL_NODE_GET_SERVICES "/ungs/"
 //user-node-release-services
@@ -261,7 +262,8 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 #define SUPER_ACTION_NODE_GETIP "node-getip"
 
 //运行环境与软件版本号检测
-#define SUPER_ACTION_NODE_ENV_CHECK "env-check"
+#define SUPER_ACTION_SERVER_NODE_ENV_CHECK "pn-env-check"
+#define SUPER_ACTION_USER_NODE_ENV_CHECK "un-env-check"
 
 //网关与服务节点的Hello检测
 #define SUPER_ACTION_SERVICES_CHECK_HELLO "node-hello"
