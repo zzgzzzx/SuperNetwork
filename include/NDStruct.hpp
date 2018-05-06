@@ -30,6 +30,28 @@ typedef struct
 }SLogConf, *pSLogConf;
 
  /**
+  ******************************************************************************
+  * @brief	 server list inform structure
+  * @note	 This is the structure for server inform
+  ******************************************************************************
+  */
+ typedef struct
+{
+	 //服务器URL
+	 ndString	 sSrvURL;
+	 //权重
+	 ndInt32 	iWeight;
+}SServerInfo;
+
+/*服务器列信息存储*/
+typedef struct
+{
+	ndString version;
+	list<SServerInfo> liServer;
+}SCenterHost, *pSCenterHost;
+
+
+ /**
  ******************************************************************************
  * @brief   ip pool structure
  * @note    This is the structure for ip pool
@@ -93,20 +115,6 @@ typedef struct
 	SIPPool mIPPool;
 }SNodeInform, *pSNodeInform;
 
-
- /**
-  ******************************************************************************
-  * @brief	 server list inform structure
-  * @note	 This is the structure for server inform
-  ******************************************************************************
-  */
- typedef struct
-{
-	 //服务器URL
-	 ndString	 sSrvURL;
-	 //权重
-	 ndInt16	 iWeight;
-}SServerInfo;
 
 /*
  ******************************************************************************

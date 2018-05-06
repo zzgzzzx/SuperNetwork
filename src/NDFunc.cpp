@@ -9,11 +9,9 @@
 #include "cJSON.h"
 #include "NDFunc.hpp"
 #include "NDGlobal.hpp"
+#include "IniClass.hpp"
 
 extern CBaseApp *gPSuperVPNApp;
-extern list<SServerInfo> gServers;
-extern list<SServerInfo>::iterator gITCurServer, gITBakServer;
-
 /*********************************************************
 函数说明：插入单回定时器
 入参说明：
@@ -120,12 +118,26 @@ ndBool AfxGetGatewayName(ndString &host)
 出参说明：
 返回值  ：
 *********************************************************/
-CNodeBase *AfxGetVPNNode()
+CNodeGeneral *AfxGetVPNNode()
 {
 	CSuperVPNApp *pSuerVPNApp = dynamic_cast<CSuperVPNApp*> (gPSuperVPNApp);
 	if(pSuerVPNApp == NULL) return NULL;
 
-	return pSuerVPNApp->mPNode;
+	return dynamic_cast<CNodeGeneral*> (pSuerVPNApp->mPNode);
+}
+
+/*********************************************************
+函数说明：获取服务器列表
+入参说明：
+出参说明：
+返回值  ：
+*********************************************************/
+CCenterHost *AfxGetCenterHost()
+{
+	CSuperVPNApp *pSuerVPNApp = dynamic_cast<CSuperVPNApp*> (gPSuperVPNApp);
+	if(pSuerVPNApp == NULL) return NULL;
+
+	return pSuerVPNApp->mPCenterHost;
 }
 
 /*********************************************************
@@ -187,45 +199,6 @@ void AfxTraceLocalLog(char *sLogContext)
 }
 
 /*********************************************************
-函数说明：获取下一个可用的服务器地址
-入参说明：无
-出参说明：无
-返回值  ：true-成功获得下一个地址
-          false-无可用地址
-          list<SServerInfo> CSuperVPNApp::gServers;
-		 list<SServerInfo>::iterator gITServer;
-*********************************************************/
-bool AfxGetNextSrvUrl(SServerInfo &serverInfo)
-{
-    if(gITCurServer == gServers.end() || ++gITCurServer == gServers.end())
-    {
-        gITCurServer = gServers.begin();
-		AfxWriteDebugLog("SuperVPN run at [AfxGetNextSrvUrl] it set to begin");
-    }
-
-    if (gITCurServer != gServers.end())
-    {
-    		SServerInfo curInfo,bakInfo;
-			bakInfo = *gITBakServer;
-			curInfo = *gITCurServer;
-
-			AfxWriteDebugLog("SuperVPN run at [AfxGetNextSrvUrl] cur host=[%s]", curInfo.sSrvURL.c_str());
-			AfxWriteDebugLog("SuperVPN run at [AfxGetNextSrvUrl] bak host=[%s]", bakInfo.sSrvURL.c_str());
-
-			if(curInfo.sSrvURL != bakInfo.sSrvURL)
-			{	
-		        serverInfo = *gITCurServer;
-				AfxWriteDebugLog("SuperVPN run at [AfxGetNextSrvUrl] Get new host=[%s]", serverInfo.sSrvURL.c_str());
-		        return true;
-			}
-    }
-	AfxWriteDebugLog("SuperVPN run at [AfxGetNextSrvUrl] Not more new server");
-
-    return false;
-}
-
-
-/*********************************************************
 函数说明：写入节点编号
 入参说明：
 出参说明：
@@ -233,12 +206,10 @@ bool AfxGetNextSrvUrl(SServerInfo &serverInfo)
 *********************************************************/
 void AfxWriteNodeID(const char *nodeid)
 {
-	FILE *pFile;
-
-	if ((pFile = fopen(NODEID_FILE_NAME, "w+")) == NULL) return;
-
-	fputs(nodeid, pFile);
-	fclose(pFile);
+	CIniDoc iniDOC;
+	iniDOC.LoadFromFile(NODEID_INI_FILE_NAME);
+	iniDOC.PutItemString(NODEID_INI_FILE_SECT_SETTINGS, NODEID_INI_FILE_SECT_ITEM_NODEID, nodeid);
+	iniDOC.SaveToFile(NODEID_INI_FILE_NAME); 
 }
 
 /*********************************************************
@@ -249,15 +220,9 @@ void AfxWriteNodeID(const char *nodeid)
 *********************************************************/
 char *AfxGetNodeID()
 {
-	FILE *pFile;
-	static char nodeid[128]={0};
-
-	if ((pFile = fopen(NODEID_FILE_NAME, "r")) == NULL) return nodeid;
-
-	fgets(nodeid, sizeof(nodeid), pFile);
-	fclose(pFile);
-
-	return nodeid;
+	CIniDoc iniDOC;
+	iniDOC.LoadFromFile(NODEID_INI_FILE_NAME);
+	return iniDOC.GetItemString(NODEID_INI_FILE_SECT_SETTINGS, NODEID_INI_FILE_SECT_ITEM_NODEID);
 }
 
 /*********************************************************
@@ -268,12 +233,10 @@ char *AfxGetNodeID()
 *********************************************************/
 void AfxWriteNodePwd(const char *nodepwd)
 {
-	FILE *pFile;
-
-	if ((pFile = fopen(NODEPWD_FILE_NAME, "w+")) == NULL) return;
-
-	fputs(nodepwd, pFile);
-	fclose(pFile);
+	CIniDoc iniDOC;
+	iniDOC.LoadFromFile(NODEID_INI_FILE_NAME);
+	iniDOC.PutItemString(NODEID_INI_FILE_SECT_SETTINGS, NODEID_INI_FILE_SECT_ITEM_NODEPWD, nodepwd);
+	iniDOC.SaveToFile(NODEID_INI_FILE_NAME); 	
 }
 
 /*********************************************************
@@ -284,15 +247,10 @@ void AfxWriteNodePwd(const char *nodepwd)
 *********************************************************/
 char *AfxGetNodePwd()
 {
-	FILE *pFile;
-	static char nodepwd[128]={0};
+	CIniDoc iniDOC;
+	iniDOC.LoadFromFile(NODEID_INI_FILE_NAME);
+	return iniDOC.GetItemString(NODEID_INI_FILE_SECT_SETTINGS, NODEID_INI_FILE_SECT_ITEM_NODEPWD);
 
-	if ((pFile = fopen(NODEPWD_FILE_NAME, "r")) == NULL) return nodepwd;
-
-	fgets(nodepwd, sizeof(nodepwd), pFile);
-	fclose(pFile);
-
-	return nodepwd;
 }
 
 /*********************************************************
@@ -303,14 +261,13 @@ char *AfxGetNodePwd()
 *********************************************************/
 void AfxWriteTaskTime(int time)
 {
-	FILE *pFile;
 	char tasktime[32]={0};
-
-	if ((pFile = fopen(TASK_CHECK_FILE_NAME, "w+")) == NULL) return;
-
 	sprintf(tasktime, "%d", time);
-	fputs(tasktime, pFile);
-	fclose(pFile);
+
+	CIniDoc iniDOC;
+	iniDOC.LoadFromFile(NODEID_INI_FILE_NAME);
+	iniDOC.PutItemString(NODEID_INI_FILE_SECT_SETTINGS, NODEID_INI_FILE_SECT_ITEM_TASKTIME, tasktime);
+	iniDOC.SaveToFile(NODEID_INI_FILE_NAME); 	
 }
 
 /*********************************************************
@@ -321,63 +278,41 @@ void AfxWriteTaskTime(int time)
 *********************************************************/
 int AfxGetTaskTime()
 {
-	FILE *pFile;
 	char tasktime[32]={0};
 
-	if ((pFile = fopen(TASK_CHECK_FILE_NAME, "r")) == NULL) return TASK_CHECK_TIMER_VALUE;
+	CIniDoc iniDOC;
+	iniDOC.LoadFromFile(NODEID_INI_FILE_NAME);
 
-	fgets(tasktime, sizeof(tasktime), pFile);
-	fclose(pFile);
-
-	return atoi(tasktime);
+	return atoi(iniDOC.GetItemString(NODEID_INI_FILE_SECT_SETTINGS, NODEID_INI_FILE_SECT_ITEM_TASKTIME));
 }
 
-
-
 /*********************************************************
-函数说明：获取服务列表
+函数说明：服务器列表版本号
 入参说明：
 出参说明：
 返回值  ：
- {
-	"servers":[
-	         {
-	             "ip":"192.168.0.1"
-	             "port":"6666"
-	         }
-	         {
-	             "ip":"192.168.0.2"
-	             "port":"7777"
-	         }
-	]
-}
 *********************************************************/
-ndString ServerListToString(list<SServerInfo> &mServers)
+void AfxWriteHostVersion(const char *version)
 {
-	ndString result;
-    char *out;
-    cJSON *root, *fmt, *actions;
+	AfxWriteDebugLog("SuperVPN run at [AfxWriteHostVersion] new version=[%s]", version);
 
-	list<SServerInfo>::iterator iter;
-    root = cJSON_CreateObject();
-    cJSON_AddItemToObject(root, "servers", actions = cJSON_CreateArray());
+	CIniDoc iniDOC;
+	iniDOC.LoadFromFile(NODEID_INI_FILE_NAME);
+	iniDOC.PutItemString(NODEID_INI_FILE_SECT_SETTINGS, NODEID_INI_FILE_SECT_ITEM_HOSTVERSION, version);
+	iniDOC.SaveToFile(NODEID_INI_FILE_NAME);
+}
 
-	SServerInfo sInfo;
-	for (iter = mServers.begin(); iter != mServers.end(); ++iter)
-	{
-		sInfo = *iter;
-    	cJSON_AddItemToArray(actions, fmt = cJSON_CreateObject());
-    	cJSON_AddStringToObject(fmt, "host", sInfo.sSrvURL.c_str());
-		cJSON_AddNumberToObject(fmt, "weight", sInfo.iWeight);		
-	}
-	
-    out = cJSON_Print(root);
-	result = out;
-	
-    cJSON_Delete(root);
-    free(out);
-	
-	return result;
+/*********************************************************
+函数说明：获取服务器列表版本号
+入参说明：
+出参说明：
+返回值  ：
+*********************************************************/
+char *AfxGetHostVersion()
+{
+	CIniDoc iniDOC;
+	iniDOC.LoadFromFile(NODEID_INI_FILE_NAME);
+	return iniDOC.GetItemString(NODEID_INI_FILE_SECT_SETTINGS, NODEID_INI_FILE_SECT_ITEM_HOSTVERSION);
 }
 
 int GetRandomNumber()
@@ -387,170 +322,6 @@ int GetRandomNumber()
 	RandomNumber = rand()%10;//生成10以内的随机数
 
 	return RandomNumber;
-}
-
-void StringToServerList(ndString json, list<SServerInfo> &mServers)
-{
-    cJSON *root;
-	SServerInfo sInfo;
-	int RandomNumber;
-
-	//从内容串中分析出服务器列表信息
-    root = cJSON_Parse(json.c_str());
-    if (!root)
-    {
-        AfxWriteDebugLog("SuperVPN run at [StringToServerList] Error before: [%s]", cJSON_GetErrorPtr());
-        return;
-    }
-
-    cJSON *serverArray = cJSON_GetObjectItem(root, "servers");
-    if(serverArray != NULL)
-    {
-	    srand((unsigned)time(NULL));
-        cJSON *serverlist = serverArray->child;
-		while(serverlist != NULL)
-		{
-		    if(cJSON_GetObjectItem(serverlist, "host") != NULL &&
-		       cJSON_GetObjectItem(serverlist, "host")->valuestring != NULL)
-		        sInfo.sSrvURL = cJSON_GetObjectItem(serverlist, "host")->valuestring;
-			AfxWriteDebugLog("SuperVPN run at [StringToServerList] host=[%s]", sInfo.sSrvURL.c_str());
-
-		    if(cJSON_GetObjectItem(serverlist, "weight") != NULL &&
-		       cJSON_GetObjectItem(serverlist, "weight")->valuestring != NULL)
-		        sInfo.iWeight = cJSON_GetObjectItem(serverlist, "weight")->valueint;
-			AfxWriteDebugLog("SuperVPN run at [StringToServerList] iWeight=[%d]", sInfo.iWeight);
-
-			mServers.push_back(sInfo);
-
-			/*
-			switch(rand()%10){
-			    case 1: 
-					case 3: 
-						case 5: 
-							case 7: 
-								case 9:
-			       mServers.push_back(sInfo);
-			       break; 
-			    case 2:
-					case 4:
-						case 6:
-							case 8:
-								case 10:
-			       mServers.push_front(sInfo);
-			       break;
-			    default:
-			       mServers.push_front(sInfo);
-			}	
-			*/
-		    serverlist = serverlist->next;
-		}
-     }	
-}
-
-ndBool AfxGetServerList(list<SServerInfo> &mServers)
-{
-	FILE *pFile;
-	ndString json;
-
-	//初始化列表信息
-	SServerInfo server;
-	
-	server.sSrvURL= "http://n001.zrdx.com:5213";
-	mServers.push_back(server);
-
-	server.sSrvURL= "http://n002.zrdx.com:5213";
-	mServers.push_back(server);	
-
-	server.sSrvURL= "http://n003.zrdx.com:5213";
-	mServers.push_back(server);	
-	
-	//检测/etc/network目录是否存在
-	AfxWriteDebugLog("SuperVPN run at [AfxGetServerList] Check /etc/ian Dir");
-	if(access(VPN_DIR_PATH_NAME, NULL) != 0)  
-	{  
-		if(mkdir(VPN_DIR_PATH_NAME, 0755) == -1)  
-		{   
-			AfxWriteDebugLog("SuperVPN run at [AfxGetServerList] create [%s] File Fail", SERVER_LIST_FILE_NAME);
-			return false; 
-		}  
-	}  
-
-	//文件不存在
-	AfxWriteDebugLog("SuperVPN run at [AfxGetServerList] Check /etc/network/server.list");
-	if (access(SERVER_LIST_FILE_NAME, NULL) != 0)
-	{
-		char cmd[1024]={0};
-		sprintf(cmd, "rm %s*", SERVER_LIST_FILE_NAME);
-		AfxExecCmd(cmd);
-		if ((pFile = fopen(SERVER_LIST_FILE_NAME, "w+")) == NULL)
-		{
-			AfxWriteDebugLog("SuperVPN run at [AfxGetServerList] Create [%s] File Fail", SERVER_LIST_FILE_NAME);
-			return false;
-		}
-
-		json = ServerListToString(mServers);
-		if (fwrite(json.c_str(), json.length(), 1, pFile) <= 0)
-		{
-			AfxWriteDebugLog("SuperVPN run at [AfxGetServerList] Write [%s] File Fail", SERVER_LIST_FILE_NAME);
-			fclose(pFile);
-			return false;
-		}
-		
-		fclose(pFile);
-		return true;
-	}
-
-	//文件存在
-	if ((pFile = fopen(SERVER_LIST_FILE_NAME, "r")) == NULL)
-	{
-		AfxWriteDebugLog("SuperVPN run at [AfxGetServerList] read [%s] File Fail", SERVER_LIST_FILE_NAME);
-		return false;
-	}	
-
-	mServers.clear();
-	
-	AfxWriteDebugLog("SuperVPN run at [AfxGetServerList] read /etc/network/server.list");
-	char buff[1025]={0};
-	while(fread(buff, sizeof(char), 1024, pFile) >0 )
-	{
-		json.append(buff);
-		memset(buff, 0, sizeof(buff));
-	}
-	AfxWriteDebugLog("SuperVPN run at [AfxGetServerList] Local Inform=[%s]", json.c_str());
-	StringToServerList(json, mServers);
-	
-	fclose(pFile);
-
-	return true;
-}
-
-/*********************************************************
-函数说明：更新服务列表
-入参说明：
-出参说明：
-返回值  ：
-*********************************************************/
-ndBool AfxUpdateServerList(list<SServerInfo> &mServers)
-{
-	FILE *pFile;
-	ndString json;
-	
-	if ((pFile = fopen(SERVER_LIST_FILE_NAME, "w+")) == NULL)
-	{
-		AfxWriteDebugLog("SuperVPN run at [AfxGetServerList] Create [%s] File Fail", SERVER_LIST_FILE_NAME);
-		return false;
-	}
-
-	json = ServerListToString(mServers);
-	if (fwrite(json.c_str(), json.length(), 1, pFile) <= 0)
-	{
-		AfxWriteDebugLog("SuperVPN run at [AfxGetServerList] Write [%s] File Fail", SERVER_LIST_FILE_NAME);
-		fclose(pFile);
-		return false;
-	}
-	
-	fclose(pFile);
-	return true;
 }
 
 /*********************************************************
@@ -565,7 +336,7 @@ void AfxWriteDebugLog(char *Format,...)
 
 	va_list Args;
 	time_t NowTime;
-	char StrBuff[1024];
+	char StrBuff[8192];
 
 	time(&NowTime);
 	strftime(StrBuff, sizeof(StrBuff)-1,"[%b%d %H:%M:%S]", localtime(&NowTime));

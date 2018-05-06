@@ -130,11 +130,18 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 -----------------------------------------------------------------------------------------*/
 #define NODEID_FILE_NAME	"/etc/ian/node.id"
 #define NODEPWD_FILE_NAME	"/etc/ian/pwd.id"
+#define TASK_CHECK_FILE_NAME "/etc/ian/task.time"
 
 /*---------------------------------------------------------------------------------------
-//定时任务检测时间
+//系统配置文件
 -----------------------------------------------------------------------------------------*/
-#define TASK_CHECK_FILE_NAME "/etc/ian/task.time"
+#define NODEID_INI_FILE_NAME	"/etc/ian/system.ini"
+#define NODEID_INI_FILE_SECT_SETTINGS	"settings"
+#define NODEID_INI_FILE_SECT_ITEM_NODEID	"nodeid"
+#define NODEID_INI_FILE_SECT_ITEM_NODEPWD	"nodepwd"
+#define NODEID_INI_FILE_SECT_ITEM_TASKTIME	"tasktime"
+#define NODEID_INI_FILE_SECT_ITEM_HOSTVERSION	"hostversion"
+
 
 /*---------------------------------------------------------------------------------------
 //升级文件的临时文件名
@@ -158,7 +165,10 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 /*---------------------------------------------------------------------------------------
 //服务器列表 IP:Port
 -----------------------------------------------------------------------------------------*/
-#define SERVER_LIST_FILE_NAME	"/etc/ian/server.list001"
+#define SERVER_LIST_FILE_NAME	    "/etc/ian/server.list"
+#define SERVER_LIST_FILE_NAME_VER2	"/etc/ian/server.list.v2"
+
+
 //主机名的文件
 #define HOST_FILE_NAME	"/etc/hosts"
 
@@ -250,8 +260,10 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 /*---------------------------------------------------------------------------------------
 //设备DeviceType
 -----------------------------------------------------------------------------------------*/
-#define DEVICE_TYPE_KENBAO "1"
-#define DEVICE_TYPE_GATEWAY "2"
+#define DEVICE_TYPE_KENBAO "kb"
+#define DEVICE_TYPE_MIPS "mips"
+
+#define DEVICE_TYPE_GATEWAY "gw"
 
 /*---------------------------------------------------------------------------------------
 //数据包Action标签名称定义
@@ -262,8 +274,8 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 #define SUPER_ACTION_NODE_GETIP "node-getip"
 
 //运行环境与软件版本号检测
-#define SUPER_ACTION_SERVER_NODE_ENV_CHECK "pn-env-check"
-#define SUPER_ACTION_USER_NODE_ENV_CHECK "un-env-check"
+#define SUPER_ACTION_SERVER_NODE_ENV_CHECK "pn-env-ck"
+#define SUPER_ACTION_USER_NODE_ENV_CHECK "un-env-ck"
 
 //网关与服务节点的Hello检测
 #define SUPER_ACTION_SERVICES_CHECK_HELLO "node-hello"

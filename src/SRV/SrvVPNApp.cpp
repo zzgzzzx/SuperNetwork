@@ -62,10 +62,10 @@ ndString CSrvVPNApp::GetDeviceType()
 出参说明：
 返回值  ：
 *********************************************************/
-ndStatus CSrvVPNApp::RunEnvCheck(char *appname, bool ifOnlyCheckUpgrade)
+ndStatus CSrvVPNApp::RunEnvCheck(bool ifOnlyCheckUpgrade)
 {
 	CHttpRunEvnCKSrv httpRunEnvCK(mPNode);
-	return httpRunEnvCK.BeginCheck(appname, ifOnlyCheckUpgrade);
+	return httpRunEnvCK.BeginCheck(ifOnlyCheckUpgrade);
 }
 
 /*********************************************************
@@ -74,9 +74,9 @@ ndStatus CSrvVPNApp::RunEnvCheck(char *appname, bool ifOnlyCheckUpgrade)
 出参说明：
 返回值  ：
 *********************************************************/
-bool CSrvVPNApp::InitSystem(char *appname, bool ifOnlyCheckUpgrade)
+bool CSrvVPNApp::InitSystem(bool ifOnlyCheckUpgrade)
 {
-	if (!CSuperVPNApp::InitSystem(appname,ifOnlyCheckUpgrade)) return false;
+	if (!CSuperVPNApp::InitSystem(ifOnlyCheckUpgrade)) return false;
 	
 	//定时重启检测
 	if(mPNode->GetNodeInform().lRestartTime > 0)
@@ -86,5 +86,4 @@ bool CSrvVPNApp::InitSystem(char *appname, bool ifOnlyCheckUpgrade)
 
 	return true;
 }
-
 

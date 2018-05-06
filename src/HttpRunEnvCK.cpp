@@ -63,7 +63,7 @@ ndStatus CHttpRunEvnCK::AnalysisCheckRsp()
 			return ND_ERROR_INVALID_RESPONSE;
         }		
         
-        cJSON *replices = cJSON_GetObjectItem(root, "replies");
+        cJSON *replices = cJSON_GetObjectItem(actionslist, "replies");
         if(replices != NULL)
         {
             cJSON *repliceslist = replices->child;
@@ -78,8 +78,8 @@ ndStatus CHttpRunEvnCK::AnalysisCheckRsp()
 				        ndString init = cJSON_GetObjectItem(objType, "init")->valuestring;
 						if (init == "true")
 						{
-							remove(NODEID_FILE_NAME);
-							remove(NODEPWD_FILE_NAME);
+							AfxWriteNodeID("");
+							AfxWriteNodePwd("");
 							return ND_NEED_RESTART;
 						}
 				}
@@ -520,7 +520,7 @@ ndStatus CHttpRunEvnCK::Download(ndString filename, list<ndString> urls, ndStrin
 出参说明：无
 返回值  ：true为需要升级,false无需升级
 *********************************************************/
-ndStatus CHttpRunEvnCK::BeginCheck(char *appname, bool ifOnlyCheckUpgrade)
+ndStatus CHttpRunEvnCK::BeginCheck(bool ifOnlyCheckUpgrade)
 {
     //组装数据包
     AfxWriteDebugLog("SuperVPN run at[CHttpRunEvnCK::BeginCheck] MakeRequest Pkg");

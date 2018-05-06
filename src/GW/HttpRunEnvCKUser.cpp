@@ -43,11 +43,10 @@ ndStatus CHttpRunEvnCKUser::MakeCheckReq()
 
     cJSON_AddItemToObject(root, "actions", actions = cJSON_CreateArray());
     cJSON_AddItemToArray(actions, fmt = cJSON_CreateObject());
-    cJSON_AddStringToObject(fmt, "action", SUPER_ACTION_USER_NODE_ENV_CHECK);
-	CSuperVPNApp *pSuperVPNApp = dynamic_cast<CSuperVPNApp*> (gPSuperVPNApp);	
+    cJSON_AddStringToObject(fmt, "action", SUPER_ACTION_USER_NODE_ENV_CHECK);	
 	cJSON_AddItemToObject(actions, "devparams", arugments = cJSON_CreateArray());
 	cJSON_AddItemToArray(arugments, fmt = cJSON_CreateObject());
-	cJSON_AddNumberToObject(fmt, "checktime", pSuperVPNApp->GetCheckTime());
+	cJSON_AddNumberToObject(fmt, "checktime", AfxGetTaskTime());
 
     out = cJSON_Print(root);
     mSendBuf = out;

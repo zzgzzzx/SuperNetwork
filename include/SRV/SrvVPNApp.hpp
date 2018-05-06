@@ -20,12 +20,12 @@ public:
 	//显示版本信息
 	virtual void ShowVersion();
 	//系统运行环境检测
-	ndStatus RunEnvCheck(char *appname, bool ifOnlyCheckUpgrade);	
+	ndStatus RunEnvCheck(bool ifOnlyCheckUpgrade);	
 	//获取设备类型
 	ndString GetDeviceType();	
 
 	//系统数据初始化
-	bool InitSystem(char *appname, bool ifOnlyCheckUpgrade);	
+	bool InitSystem(bool ifOnlyCheckUpgrade);	
 
 	//构造函数
 	CSrvVPNApp();

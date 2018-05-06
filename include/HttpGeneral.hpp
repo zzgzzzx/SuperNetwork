@@ -41,7 +41,7 @@ protected:
 
 	//获取服务器列表
 	virtual ndStatus MakeServerListReq();
-	ndStatus AnalysisServerListRsp(list<SServerInfo> &mServers);	
+	ndStatus AnalysisServerListRsp(SCenterHost &mServers);	
 
 	//数据包发送并接收处理
 	ndStatus PkgSendAndRecv(ndString url);	
@@ -54,7 +54,7 @@ public:
 	ndStatus NodeInit();
 	ndStatus GetIP();	
 	
-	ndBool GetServerList(list<SServerInfo> &mServers);
+	ndBool GetServerList(SCenterHost &mServers);
 	
     virtual ~CHttpGeneral();
 

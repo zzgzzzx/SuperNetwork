@@ -35,7 +35,7 @@ public:
 	virtual ndStatus NodeEnvSet();
 
 	//获取服务器列表
-	virtual ndBool GetServerList(list<SServerInfo> &mServers);
+	virtual ndBool GetServerList(SCenterHost &mServers);
 };
 
 #endif //VPN_NODE_GENERAL_H

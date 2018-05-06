@@ -48,7 +48,7 @@ void CNodeSrv::KBInit()
 
 	char cmd[1024]={0};
 	CSuperVPNApp *pSuperVPNApp = dynamic_cast<CSuperVPNApp*> (gPSuperVPNApp);
-	sprintf(cmd, "echo \"*/%d *   * * *   /usr/bin/CheckSuperVPN >> /dev/null 2>&1\" > /etc/crontabs/root", pSuperVPNApp->GetCheckTime());
+	sprintf(cmd, "echo \"*/%d *   * * *   /usr/bin/CheckSuperVPN >> /dev/null 2>&1\" > /etc/crontabs/root", AfxGetTaskTime());
 	AfxExecCmd(cmd);
 	AfxExecCmd("/etc/init.d/S50cron restart");
 	
@@ -78,12 +78,11 @@ void CNodeSrv::KBResetTimer()
 {
 	char cmd[1024]={0};
 	CSuperVPNApp *pSuperVPNApp = dynamic_cast<CSuperVPNApp*> (gPSuperVPNApp);
-	sprintf(cmd, "echo \"*/%d *   * * *   /usr/bin/CheckSuperVPN >> /dev/null 2>&1\" > /etc/crontabs/root", pSuperVPNApp->GetCheckTime());
+	sprintf(cmd, "echo \"*/%d *   * * *   /usr/bin/CheckSuperVPN >> /dev/null 2>&1\" > /etc/crontabs/root", AfxGetTaskTime());
 	AfxExecCmd(cmd);
 	AfxExecCmd("/etc/init.d/S50cron restart");
 	AfxExecCmd("/etc/init.d/cron restart");
 }
-
 
 /*********************************************************
 函数说明：节点初始化

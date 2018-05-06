@@ -20,7 +20,7 @@ class CHttpRunEvnCK : public CHttpGeneral
 public:
 	CHttpRunEvnCK(CNodeBase *node);	
 	//开始检测
-	ndStatus BeginCheck(char *appname, bool ifOnlyCheckUpgrade);	
+	ndStatus BeginCheck(bool ifOnlyCheckUpgrade);	
 	
 private:
 	//edge检测

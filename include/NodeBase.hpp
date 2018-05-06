@@ -34,7 +34,7 @@ public:
 	//节点初始化
 	virtual ndStatus NodeInit()=0;
 	//获取服务器列表
-	virtual ndBool GetServerList(list<SServerInfo> &mServers)=0;	
+	virtual ndBool GetServerList(SCenterHost &mServers)=0;	
 	
 
 	//异步回调处理函数

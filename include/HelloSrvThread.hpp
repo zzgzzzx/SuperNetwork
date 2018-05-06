@@ -19,6 +19,8 @@ class CHelloSrvThread: public CBaseThread
 private:
 	//服务器socket
 	CUdpSvr mSrvSkt;
+	//是否已启动
+	ndBool mBRun;
 	
 protected:
 	//线程处理函数
@@ -35,6 +37,8 @@ public:
 	~CHelloSrvThread();
 	//发送数据包
 	int SendTo(ndUInt32 IP, ndInt16 iPort, const char *pBuf, int iBufLen);
+	//hello线程是否已经运行
+	ndBool IfAlreadyRun();
 };
 
 #endif

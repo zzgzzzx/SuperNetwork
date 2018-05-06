@@ -34,7 +34,11 @@ void AfxInsertPktToSysQue(CPacket *pkt);
 CHelloSrvThread *AfxGetHelloSrv();
 
 //获取vpn节点
-CNodeBase *AfxGetVPNNode();
+CNodeGeneral *AfxGetVPNNode();
+
+//获取服务器列表
+CCenterHost *AfxGetCenterHost();
+
 
 //获取网关名称
 ndBool AfxGetGatewayName(ndString &host);
@@ -57,11 +61,9 @@ char *AfxGetNodePwd();
 //检测任务文件读写
 void AfxWriteTaskTime(int time);
 int AfxGetTaskTime();
-
-
-//服务列表文件读写
-ndBool AfxGetServerList(list<SServerInfo> &mServers);
-ndBool AfxUpdateServerList(list<SServerInfo> &mServers);
+//服务器列表版本号
+void AfxWriteHostVersion(const char *version);
+char *AfxGetHostVersion();
 
 //获取mac地址
 void AfxGetEthMac(const char *ethname, ndString &mac);

@@ -40,20 +40,20 @@ ndStatus CHttpRunEvnCKSrv::MakeCheckReq()
     cJSON *root, *fmt, *actions, *arugments;
 
     //组装消息体
+	CSuperVPNApp *pSuperVPNApp = dynamic_cast<CSuperVPNApp*> (gPSuperVPNApp);
+	if(pSuperVPNApp != NULL) strcpy(subtype, pSuperVPNApp->GetDeviceType().c_str());
+	
     root = cJSON_CreateObject();
-    AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::MakeCheckReq] Make check actions");
+    AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCKSrv::MakeCheckReq] Make check actions");
 
     cJSON_AddItemToObject(root, "actions", actions = cJSON_CreateArray());
     cJSON_AddItemToArray(actions, fmt = cJSON_CreateObject());
     cJSON_AddStringToObject(fmt, "action", SUPER_ACTION_SERVER_NODE_ENV_CHECK);
-
-	CSuperVPNApp *pSuperVPNApp = dynamic_cast<CSuperVPNApp*> (gPSuperVPNApp);
-	if(pSuperVPNApp != NULL) strcpy(subtype, pSuperVPNApp->GetDeviceType().c_str());
 	
-	cJSON_AddItemToObject(actions, "devparams", arugments = cJSON_CreateArray());
-	cJSON_AddItemToArray(arugments, fmt = cJSON_CreateObject());
-    cJSON_AddStringToObject(fmt, "subtype", subtype);
-	cJSON_AddNumberToObject(fmt, "checktime", pSuperVPNApp->GetCheckTime());
+	cJSON_AddItemToObject(fmt, "arguments", arugments = cJSON_CreateObject());
+	cJSON_AddStringToObject(arugments, "nodeid", mPNode->GetNodeInform().sNodeID.c_str());
+    cJSON_AddStringToObject(arugments, "subtype", subtype);
+	cJSON_AddNumberToObject(arugments, "checktime", AfxGetTaskTime());
 
     out = cJSON_Print(root);
     mSendBuf = out;
@@ -72,7 +72,7 @@ ndStatus CHttpRunEvnCKSrv::MakeCheckReq()
 *********************************************************/
 ndStatus CHttpRunEvnCKSrv::AnalysisCheckRsp()
 {
-	AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::AnalysisCheckRspAndDeal] begin");
+	AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCKSrv::AnalysisCheckRspAndDeal] begin");
 
     cJSON *root;
 	int iErrCode;
@@ -80,7 +80,7 @@ ndStatus CHttpRunEvnCKSrv::AnalysisCheckRsp()
     root = cJSON_Parse(mRcvBuf.c_str());
     if (!root)
     {
-        AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::AnalysisCheckRspAndDeal] Error before: [%s]", cJSON_GetErrorPtr());
+        AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCKSrv::AnalysisCheckRspAndDeal] Error before: [%s]", cJSON_GetErrorPtr());
         return ND_ERROR_INVALID_RESPONSE;
     }
 
@@ -97,13 +97,33 @@ ndStatus CHttpRunEvnCKSrv::AnalysisCheckRsp()
 			return ND_ERROR_INVALID_RESPONSE;
         }		
         
-        cJSON *replices = cJSON_GetObjectItem(root, "replies");
+        cJSON *replices = cJSON_GetObjectItem(actionslist, "replies");
         if(replices != NULL)
         {
             cJSON *repliceslist = replices->child;
 
+			//取reinit
+			cJSON *objType = cJSON_GetObjectItem(repliceslist, "reinit") ;
+			AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCKSrv::AnalysisCheckRspAndDeal] begin get reinit");
+			if(objType != NULL)
+			{
+				AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCKSrv::AnalysisCheckRspAndDeal] get init value");
+				if(cJSON_GetObjectItem(objType, "init") != NULL &&
+						cJSON_GetObjectItem(objType, "init")->valuestring != NULL)
+				{
+				        ndString init = cJSON_GetObjectItem(objType, "init")->valuestring;
+						AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCKSrv::AnalysisCheckRspAndDeal] return init=[%s]===========", init.c_str());
+						if (init == "true")
+						{
+							AfxWriteNodeID("");
+							AfxWriteNodePwd("");
+							return ND_NEED_RESTART;
+						}
+				}
+			}			
+
 			//取新的id
-			cJSON *objType = cJSON_GetObjectItem(repliceslist, "newnodeid") ;
+			objType = cJSON_GetObjectItem(repliceslist, "newnodeid") ;
 			if(objType != NULL)
 			{
 				if(cJSON_GetObjectItem(objType, "newid") != NULL &&
@@ -124,6 +144,7 @@ ndStatus CHttpRunEvnCKSrv::AnalysisCheckRsp()
 						cJSON_GetObjectItem(objType, "checktime")->valueint!= NULL)
 				{
 				        int checktime= cJSON_GetObjectItem(objType, "checktime")->valueint;
+						AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCKSrv::AnalysisCheckRspAndDeal] get newchecktime=[%d]", checktime);
 						AfxWriteTaskTime(checktime);
 						CNodeSrv *pNodeSrv = dynamic_cast<CNodeSrv*> (mPNode);
 						pNodeSrv->KBResetTimer();
@@ -148,14 +169,14 @@ ndStatus CHttpRunEvnCKSrv::AnalysisCheckRsp()
 			    {
 					cJSON *url = URLS->child;
 
-					AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::AnalysisCheckRspAndDeal] Get URL");
+					AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCKSrv::AnalysisCheckRspAndDeal] Get URL");
 					while(url != NULL)
 					{
 					    if(cJSON_GetObjectItem(url, "url") != NULL &&
 					       cJSON_GetObjectItem(url, "url")->valuestring != NULL)
 					    {
 					        mRunEnvCK.node.mDownLodURL.push_back(cJSON_GetObjectItem(url, "url")->valuestring);
-							AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::AnalysisCheckRspAndDeal] url=[%s]",cJSON_GetObjectItem(url, "url")->valuestring);
+							AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCKSrv::AnalysisCheckRspAndDeal] url=[%s]",cJSON_GetObjectItem(url, "url")->valuestring);
 					    }
 					    url = url->next;
 					}	       
@@ -176,14 +197,14 @@ ndStatus CHttpRunEvnCKSrv::AnalysisCheckRsp()
 			    {
 					cJSON *url = URLS->child;
 
-					AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::AnalysisCheckRspAndDeal] Get URL");
+					AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCKSrv::AnalysisCheckRspAndDeal] Get URL");
 					while(url != NULL)
 					{
 					    if(cJSON_GetObjectItem(url, "url") != NULL &&
 					       cJSON_GetObjectItem(url, "url")->valuestring != NULL)
 					    {
 					        mRunEnvCK.deamon.mDownLodURL.push_back(cJSON_GetObjectItem(url, "url")->valuestring);
-							AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::AnalysisCheckRspAndDeal] url=[%s]",cJSON_GetObjectItem(url, "url")->valuestring);
+							AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCKSrv::AnalysisCheckRspAndDeal] url=[%s]",cJSON_GetObjectItem(url, "url")->valuestring);
 					    }
 					    url = url->next;
 					}	       
@@ -204,14 +225,14 @@ ndStatus CHttpRunEvnCKSrv::AnalysisCheckRsp()
 			    {
 					cJSON *url = URLS->child;
 
-					AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::AnalysisCheckRspAndDeal] Get URL");
+					AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCKSrv::AnalysisCheckRspAndDeal] Get URL");
 					while(url != NULL)
 					{
 					    if(cJSON_GetObjectItem(url, "url") != NULL &&
 					       cJSON_GetObjectItem(url, "url")->valuestring != NULL)
 					    {
 					        mRunEnvCK.edge.mDownLodURL.push_back(cJSON_GetObjectItem(url, "url")->valuestring);
-							AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::AnalysisCheckRspAndDeal] url=[%s]",cJSON_GetObjectItem(url, "url")->valuestring);
+							AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCKSrv::AnalysisCheckRspAndDeal] url=[%s]",cJSON_GetObjectItem(url, "url")->valuestring);
 					    }
 					    url = url->next;
 					}	       
@@ -231,14 +252,14 @@ ndStatus CHttpRunEvnCKSrv::AnalysisCheckRsp()
 			    {
 					cJSON *url = URLS->child;
 
-					AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::AnalysisCheckRspAndDeal] Get URL");
+					AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCKSrv::AnalysisCheckRspAndDeal] Get URL");
 					while(url != NULL)
 					{
 					    if(cJSON_GetObjectItem(url, "url") != NULL &&
 					       cJSON_GetObjectItem(url, "url")->valuestring != NULL)
 					    {
 					        mRunEnvCK.iptable.mDownLodURL.push_back(cJSON_GetObjectItem(url, "url")->valuestring);
-							AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::AnalysisCheckRspAndDeal] url=[%s]",cJSON_GetObjectItem(url, "url")->valuestring);
+							AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCKSrv::AnalysisCheckRspAndDeal] url=[%s]",cJSON_GetObjectItem(url, "url")->valuestring);
 					    }
 					    url = url->next;
 					}	       

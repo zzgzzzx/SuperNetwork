@@ -14,6 +14,7 @@
 #include "NodeGeneral.hpp"
 #include "Packet.hpp"
 #include "HelloSrvThread.hpp"
+#include "CenterHost.hpp"
 
 //**********************************
 //应用工程基类                       
@@ -53,13 +54,16 @@ public:
 class CSuperVPNApp: public CBaseApp
 {
 private:
+	static ndBool mBNeedRestart;
 	//消息包队列
 	CMsgFIFO<CPacket*> mPktQueue;		
+	//Init文件
+	ndStatus IniFileCheck();
 
 	//服务器列表检测
 	ndStatus ServerListCheck();
  	//系统运行环境检测
- 	virtual ndStatus RunEnvCheck(char *appname, bool ifOnlyCheckUpgrade)=0;
+ 	virtual ndStatus RunEnvCheck(bool ifOnlyCheckUpgrade)=0;
 
 	//节点初始化编号检测
 	ndStatus NodeInitCheck();
@@ -76,7 +80,7 @@ private:
 	
 protected:
 	//系统数据初始化
-	bool InitSystem(char *appname, bool ifOnlyCheckUpgrade);	
+	bool InitSystem(bool ifOnlyCheckUpgrade);	
 	//应用程序初始化工作
 	bool InitApplication(int argc,char *argv[]);
 
@@ -85,13 +89,7 @@ public:
 	CNodeGeneral *mPNode;
 	//hello服务
 	CHelloSrvThread *mPHelloSrv;
-	//定时任务间隔检测时间
-	int mCheckTime;
-
-	//获取检测时间
-	int GetCheckTime();
-	//设置检测时间
-	void SetCheckTime(int time);
+	CCenterHost *mPCenterHost;
 
 	//显示版本信息
 	virtual void ShowVersion()=0;

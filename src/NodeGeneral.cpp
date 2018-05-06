@@ -114,7 +114,7 @@ ndStatus CNodeGeneral::NodeEnvSet()
 返回值  ：DP_SUCCESS-成功
           Others-失败
 *********************************************************/
-ndBool CNodeGeneral::GetServerList(list<SServerInfo> &mServers)
+ndBool CNodeGeneral::GetServerList(SCenterHost &mServers)
 {
 	return mPHttpClient->GetServerList(mServers);
 }

@@ -50,9 +50,9 @@ void CUserVPNApp::ShowVersion()
 出参说明：
 返回值  ：
 *********************************************************/
-bool CUserVPNApp::InitSystem(char *appname, bool ifOnlyCheckUpgrade)
+bool CUserVPNApp::InitSystem(bool ifOnlyCheckUpgrade)
 {
-	if (!CSuperVPNApp::InitSystem(appname,ifOnlyCheckUpgrade)) return false;
+	if (!CSuperVPNApp::InitSystem(ifOnlyCheckUpgrade)) return false;
 	
 	//启动http服务	
 	if (mHttpSrv.Start()) 
@@ -70,10 +70,10 @@ bool CUserVPNApp::InitSystem(char *appname, bool ifOnlyCheckUpgrade)
 出参说明：
 返回值  ：
 *********************************************************/
-ndStatus CUserVPNApp::RunEnvCheck(char *appname, bool ifOnlyCheckUpgrade)
+ndStatus CUserVPNApp::RunEnvCheck(bool ifOnlyCheckUpgrade)
 {
 	CHttpRunEvnCKUser httpRunEnvCK(mPNode);
-	return httpRunEnvCK.BeginCheck(appname, ifOnlyCheckUpgrade);
+	return httpRunEnvCK.BeginCheck(ifOnlyCheckUpgrade);
 }
 
 /*********************************************************
