@@ -60,6 +60,8 @@ bool CSuperVPNApp::InitSystem(bool ifOnlyCheckUpgrade)
 	AfxWriteDebugLog("SuperVPN run at [CSuperVPNApp::InitSystem] Begin ifOnlyCheckUpgrade=[%d]", ifOnlyCheckUpgrade);
 
 REINIT:
+	mBNeedRestart = ND_FALSE;
+	
 	//检测/etc/ian/目录是否存在
 	AfxWriteDebugLog("SuperVPN run at [AfxGetServerList] Check %s Dir", VPN_DIR_PATH_NAME);
 	if(access(VPN_DIR_PATH_NAME, NULL) != 0)  
@@ -91,7 +93,12 @@ REINIT:
 	ndStatus ret = RunEnvCheck(ifOnlyCheckUpgrade);
 	while(ret != ND_SUCCESS)
 	{
-		if(ifOnlyCheckUpgrade) return false;
+		if(ifOnlyCheckUpgrade)
+		{
+			mShareMem.SetMemValue(ND_TRUE);
+			return false;
+		}
+		
 		if(ret == ND_NEED_RESTART)
 		{
 			AfxWriteDebugLog("SuperVPN run at [CSuperVPNApp::InitSystem] Server Notify ReInit^_^");
@@ -278,8 +285,15 @@ void CSuperVPNApp::TranslatePkt(void)
 {
 	CPacket *pkt;
 
-	while(!mBNeedRestart)
+	while(mBNeedRestart == ND_FALSE)
 	{
+		//判断是否是-U检测有reinit的动作，有则必须重新运行
+		if(mShareMem.GetMemValue() == ND_TRUE)
+		{
+			mShareMem.SetMemValue(ND_FALSE);
+			break;
+		}
+		
 		//数据包读取
 		pkt = mPktQueue.GetMsg();		
 		if (NULL == pkt) continue;

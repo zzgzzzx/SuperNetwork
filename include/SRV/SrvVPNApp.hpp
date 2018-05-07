@@ -27,6 +27,9 @@ public:
 	//系统数据初始化
 	bool InitSystem(bool ifOnlyCheckUpgrade);	
 
+	//ian检测
+	static void IanCheckFunc(ndULong param);	
+
 	//构造函数
 	CSrvVPNApp();
 	//析构函数

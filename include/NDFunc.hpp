@@ -210,4 +210,6 @@ inline ndULong AfxGetSrcIP(int socket)
 	return sa.sin_addr.s_addr;
 }
 
+int AfxGetAllIfName(set<string> &vIFName);
+
 #endif

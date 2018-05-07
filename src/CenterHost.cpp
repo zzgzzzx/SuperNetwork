@@ -23,10 +23,6 @@
 *********************************************************/
 CCenterHost::CCenterHost()
 {
-	char cmd[128]={0};
-	sprintf(cmd, "rm %s", SERVER_LIST_FILE_NAME);
-	AfxExecCmd(cmd);	
-
 	HostInit();	
 	GetLocalHosts();
 
@@ -311,6 +307,11 @@ ndBool CCenterHost::GetLocalHosts()
 	if (access(SERVER_LIST_FILE_NAME_VER2, NULL) != 0)
 	{
 		AfxWriteDebugLog("SuperVPN run at [CCenterHost::GetLocalHosts] %s Not Exists", SERVER_LIST_FILE_NAME_VER2);
+
+		char cmd[128]={0};
+		sprintf(cmd, "rm %s*", SERVER_LIST_FILE_NAME);
+		AfxExecCmd(cmd);	
+	
 		return true;
 	}
 

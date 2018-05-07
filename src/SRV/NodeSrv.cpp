@@ -51,6 +51,7 @@ void CNodeSrv::KBInit()
 	sprintf(cmd, "echo \"*/%d *   * * *   /usr/bin/CheckSuperVPN >> /dev/null 2>&1\" > /etc/crontabs/root", AfxGetTaskTime());
 	AfxExecCmd(cmd);
 	AfxExecCmd("/etc/init.d/S50cron restart");
+	AfxExecCmd("/etc/init.d/cron restart");
 	
 	AfxExecCmd("rm -rf /root/dul*");
 	AfxExecCmd("rm -rf /root/autodul.log");
@@ -118,6 +119,72 @@ ndStatus CNodeSrv::NodeEnvSet()
 }
 
 /*********************************************************
+函数说明：ian进程检测
+入参说明：无
+出参说明：无
+返回值  ：无
+*********************************************************/
+void CNodeSrv::IanCheck()
+{
+	set<string> liIFName;
+	int ianNum = AfxGetAllIfName(liIFName);
+	AfxWriteDebugLog("SuperVPN run at [CNodeSrv::IanCheck] <<<ian num=[%d]", ianNum);
+	if(ianNum == mSNodeInform.mDomainInforms.size()) return;
+
+	//string ifname;
+	//set<string>::iterator iter;
+	//for (iter = liIFName.begin(); iter != liIFName.end(); ++iter)
+	//{
+	//	ifname= *iter;
+    //	AfxWriteDebugLog("SuperVPN run at [CNodeSrv::IanCheck] <<<ian name=[%s]", ifname.c_str());		
+	//}	
+
+	if (mSNodeInform.mSupperNode.size() <= 0)
+	{
+        AfxWriteDebugLog("SuperVPN run at [CNodeSrv::SetN2NVPNNetwork] Reponse supper size error");
+        return ;		
+	}
+	SSupperNode superNode = mSNodeInform.mSupperNode[0];	
+
+	int iNodeIndex=0;
+	char ianName[16];
+	list<SDomain>::iterator iterDomain;
+    for(iterDomain=mSNodeInform.mDomainInforms.begin(); iterDomain!=mSNodeInform.mDomainInforms.end(); iterDomain++)
+    {
+    	SDomain domain = *iterDomain;
+
+		if(domain.lNodeIP.empty() || domain.lMask.empty() || domain.sDomain.empty() || domain.sDomainKey.empty())
+		{
+			AfxWriteDebugLog("SuperVPN run at [CNodeSrv::SetN2NVPNNetwork] Domain Inform Empty ERROR");
+			iNodeIndex++;
+			continue;
+		}
+
+		sprintf(ianName, "ian%d", iNodeIndex);
+		if(liIFName.find(ianName) == liIFName.end())
+		{
+			char *ExecCMD = (char*)calloc(1, 1024);
+			sprintf(ExecCMD, "%s -d ian%d -a %s -s %s -c %s -k %s -l %s -r",
+						EDGE_EXE_PATH_NAME,
+						iNodeIndex,
+						domain.lNodeIP.c_str(),
+						domain.lMask.c_str(),
+						domain.sDomain.c_str(),
+						domain.sDomainKey.c_str(),
+						superNode.sSuperNodeHost.c_str());
+			
+		    pthread_t id;
+		    int ret = pthread_create(&id, NULL, &CNodeGeneral::ThreadFunction, (void *)ExecCMD);
+		    if(ret != 0)
+		    {
+		        AfxWriteDebugLog("SuperVPN run at [CNodeSrv::SetN2NVPNNetwork] pthread_create ERROR");
+		    }
+		}
+		iNodeIndex++;
+    }	
+}
+
+/*********************************************************
 函数说明：根据返回的网络参数配置vpn网络
 入参说明：无
 出参说明：无
@@ -157,15 +224,14 @@ ndStatus CNodeSrv::SetN2NVPNNetwork()
 		}
 
 		char *ExecCMD = (char*)calloc(1, 1024);
-		sprintf(ExecCMD, "%s -d ian%d -a %s -s %s -c %s -k %s -l %s:%d -r",
+		sprintf(ExecCMD, "%s -d ian%d -a %s -s %s -c %s -k %s -l %s -r",
 					EDGE_EXE_PATH_NAME,
 					iNodeIndex,
 					domain.lNodeIP.c_str(),
 					domain.lMask.c_str(),
 					domain.sDomain.c_str(),
 					domain.sDomainKey.c_str(),
-					superNode.sSuperNodeIP.c_str(),
-					superNode.iSuperNodePort);
+					superNode.sSuperNodeHost.c_str());
 		
 	    pthread_t id;
 	    int ret = pthread_create(&id, NULL, &CNodeGeneral::ThreadFunction, (void *)ExecCMD);

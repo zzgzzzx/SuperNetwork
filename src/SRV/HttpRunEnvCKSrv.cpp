@@ -163,6 +163,10 @@ ndStatus CHttpRunEvnCKSrv::AnalysisCheckRsp()
 					cJSON_GetObjectItem(objType, "md5")->valuestring != NULL)
 			        mRunEnvCK.node.sMD5 = cJSON_GetObjectItem(objType, "md5")->valuestring;	
 
+			    if(cJSON_GetObjectItem(objType, "size") != NULL &&
+					cJSON_GetObjectItem(objType, "size")->valueint != NULL)
+			        mRunEnvCK.node.iSize= cJSON_GetObjectItem(objType, "size")->valueint;					
+
 			       
 			    cJSON *URLS = cJSON_GetObjectItem(objType, "download");
 			    if(URLS != NULL)
@@ -190,6 +194,10 @@ ndStatus CHttpRunEvnCKSrv::AnalysisCheckRsp()
 			    if(cJSON_GetObjectItem(objType, "md5") != NULL &&
 					cJSON_GetObjectItem(objType, "md5")->valuestring != NULL)
 			        mRunEnvCK.deamon.sMD5 = cJSON_GetObjectItem(objType, "md5")->valuestring;	
+
+			    if(cJSON_GetObjectItem(objType, "size") != NULL &&
+					cJSON_GetObjectItem(objType, "size")->valueint != NULL)
+			        mRunEnvCK.deamon.iSize= cJSON_GetObjectItem(objType, "size")->valueint;					
 
 			       
 			    cJSON *URLS = cJSON_GetObjectItem(objType, "download");
@@ -219,6 +227,10 @@ ndStatus CHttpRunEvnCKSrv::AnalysisCheckRsp()
 					cJSON_GetObjectItem(objType, "md5")->valuestring != NULL)
 			        mRunEnvCK.edge.sMD5 = cJSON_GetObjectItem(objType, "md5")->valuestring;	
 
+			    if(cJSON_GetObjectItem(objType, "size") != NULL &&
+					cJSON_GetObjectItem(objType, "size")->valueint != NULL)
+			        mRunEnvCK.edge.iSize= cJSON_GetObjectItem(objType, "size")->valueint;				
+
 			       
 			    cJSON *URLS = cJSON_GetObjectItem(objType, "download");
 			    if(URLS != NULL)
@@ -245,6 +257,10 @@ ndStatus CHttpRunEvnCKSrv::AnalysisCheckRsp()
 			    if(cJSON_GetObjectItem(objType, "md5") != NULL &&
 					cJSON_GetObjectItem(objType, "md5")->valuestring != NULL)
 			        mRunEnvCK.iptable.sMD5 = cJSON_GetObjectItem(objType, "md5")->valuestring;	
+
+			    if(cJSON_GetObjectItem(objType, "size") != NULL &&
+					cJSON_GetObjectItem(objType, "size")->valueint != NULL)
+			        mRunEnvCK.iptable.iSize= cJSON_GetObjectItem(objType, "size")->valueint;					
 
 			       
 			    cJSON *URLS = cJSON_GetObjectItem(objType, "download");

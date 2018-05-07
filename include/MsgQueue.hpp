@@ -74,20 +74,36 @@ T CMsgFIFO<T>::GetMsg()
 	T p_Msg;
 	int lockmark = 0;
 
-	lockmark = pthread_mutex_lock(&m_Mutex); //将FIFO队列共享区加锁
+	struct timeval now;
+	struct timespec outtime;
+	
+	gettimeofday(&now, NULL);  
+	outtime.tv_sec = now.tv_sec + 5;  
+	outtime.tv_nsec = now.tv_usec * 1000;
 
-	while(m_pMsgQueue.empty())  //FIFO队列中没有消息，线程转入等待状态 
+	//将FIFO队列共享区加锁
+	lockmark = pthread_mutex_lock(&m_Mutex); 
+
+	//FIFO队列中没有消息，线程转入等待状态 
+	while(m_pMsgQueue.empty())  
 	{
-		pthread_cond_wait(&m_Readcond,&m_Mutex);
+		if (pthread_cond_timedwait(&m_Readcond,&m_Mutex, &outtime) == ETIMEDOUT)
+		{
+			pthread_mutex_unlock(&m_Mutex);
+			return NULL;
+		}
 	}
 
-	p_Msg=m_pMsgQueue.front();   //从FIFO队列读出消息
-	m_pMsgQueue.pop();  //将该消息从FIFO队列中删除
+	//从FIFO队列读出消息
+	p_Msg=m_pMsgQueue.front();   
+	//将该消息从FIFO队列中删除
+	m_pMsgQueue.pop();  
 
 	if(m_iMaxMsgNum-1 == m_pMsgQueue.size())
-	pthread_cond_signal(&m_Writecond);//激活阻塞的写线程
+		pthread_cond_signal(&m_Writecond);
 
-	pthread_mutex_unlock(&m_Mutex);//将FIFO队列共享区解锁
+	//将FIFO队列共享区解锁
+	pthread_mutex_unlock(&m_Mutex);
 
 	return(p_Msg);
 }

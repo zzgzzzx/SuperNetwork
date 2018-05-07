@@ -30,6 +30,8 @@ public:
 
 	//节点向服务器申请配置信息
 	ndStatus NodeEnvSet();
+	//ian进程检测
+	void IanCheck();
 };
 
 #endif //VPN_NODE_SRV_H

@@ -15,6 +15,7 @@
 #include "Packet.hpp"
 #include "HelloSrvThread.hpp"
 #include "CenterHost.hpp"
+#include "ShareMem.hpp"
 
 //**********************************
 //应用工程基类                       
@@ -55,6 +56,7 @@ class CSuperVPNApp: public CBaseApp
 {
 private:
 	static ndBool mBNeedRestart;
+	CShareMem mShareMem;
 	//消息包队列
 	CMsgFIFO<CPacket*> mPktQueue;		
 	//Init文件
@@ -80,7 +82,7 @@ private:
 	
 protected:
 	//系统数据初始化
-	bool InitSystem(bool ifOnlyCheckUpgrade);	
+	virtual bool InitSystem(bool ifOnlyCheckUpgrade);	
 	//应用程序初始化工作
 	bool InitApplication(int argc,char *argv[]);
 

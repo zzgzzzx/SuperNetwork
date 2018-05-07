@@ -32,7 +32,7 @@ private:
 	ndStatus NodeCheck();
 	
 	//下载文件
-	ndStatus Download(ndString filename, list<ndString> urls, ndString md5);
+	ndStatus Download(ndString filename, list<ndString> urls, ndString md5, ndInt32 size);
 
 protected:
 	//当前版本号

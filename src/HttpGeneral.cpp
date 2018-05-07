@@ -501,7 +501,7 @@ ndStatus CHttpGeneral::PkgSendAndRecv(ndString url)
         return ND_ERROR_INVALID_PARAM;
     }
 
-    AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::PkgSendAndRecv] Begin post data\n ServerURL=[%s]\n [%s]", host.c_str(), mSendBuf.c_str());
+    AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::PkgSendAndRecv] Begin post data\nServerURL=[%s]\n%s", host.c_str(), mSendBuf.c_str());
 rePost:
     //发送服务端并接收返回
     CURLcode rtn = Post(host.c_str(), mSendBuf.c_str(), mRcvBuf);
@@ -533,6 +533,15 @@ rePost:
         }
     }
 
+	if (GetHttpReturnCode() >= 400)
+	{
+		if (AfxGetCenterHost()->GetNextHost(serverInfo))
+		{
+			host = serverInfo.sSrvURL + url;
+			goto rePost;
+		}
+	}
+
 	AfxGetCenterHost()->CurrentHostOK();
 
     //http服务器返回码判断
@@ -542,7 +551,7 @@ rePost:
     }
 
     //返回数据的分析处理
-    AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::PkgSendAndRecv] Begin Analyze Response\n[%s]", mRcvBuf.c_str());
+    AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::PkgSendAndRecv] Begin Analyze Response\n%s", mRcvBuf.c_str());
     if(mRcvBuf.empty()){
         AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::PkgSendAndRecv] Server response data is null");
         return ND_ERROR_INVALID_RESPONSE;

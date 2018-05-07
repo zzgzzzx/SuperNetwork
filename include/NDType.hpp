@@ -146,8 +146,11 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 /*---------------------------------------------------------------------------------------
 //升级文件的临时文件名
 -----------------------------------------------------------------------------------------*/
-#define VPN_UPGRADE_FILE_NAME  "/tmp/upgrade_SuperVPN_app"
-#define VPN_UPGRADE_TEMP_FILE_NAME  "/tmp/upgrade_SuperVPN_app_tmp"
+#define VPN_UPGRADE_FILE_NAME  "/dev/shm/upgrade_SuperVPN_app"
+#define VPN_UPGRADE_TEMP_FILE_NAME  "/dev/shm/upgrade_SuperVPN_app_tmp"
+
+//#define VPN_UPGRADE_FILE_NAME  "/tmp/upgrade_SuperVPN_app"
+//#define VPN_UPGRADE_TEMP_FILE_NAME  "/tmp/upgrade_SuperVPN_app_tmp"
 
 #define VPN_EXE_FILE_NAME  "SuperVPN"
 #define VPN_EXE_PATH_NAME  "/usr/bin/SuperVPN"
@@ -172,13 +175,16 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 //主机名的文件
 #define HOST_FILE_NAME	"/etc/hosts"
 
+#define PATH_PROCNET_DEV		"/proc/net/dev"
+
+
 #define MD5_SIZE        16 
 #define MD5_STR_LEN     (MD5_SIZE * 2)
 
 /*---------------------------------------------------------------------------------------
 //服务节点VPN版本号
 -----------------------------------------------------------------------------------------*/
-#define SUPER_VPN_CLIENT_VER_SERVER 1005
+#define SUPER_VPN_CLIENT_VER_SERVER 1006
 
 /*---------------------------------------------------------------------------------------
 //用户网关节点VPN版本号
@@ -201,6 +207,8 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 -----------------------------------------------------------------------------------------*/
 #define TIMER_ID_NODE_HELLO_CHECK	0x0001			//hello检测检测
 #define TIMER_ID_NODE_RESTART_CHECK	0x0002			//restart检测检测
+#define TIMER_ID_NODE_IAN_CHECK	0x0003				//ian检测检测
+
 
 /*---------------------------------------------------------------------------------------
 //checkVPN定时检测任务(分钟)
@@ -212,6 +220,11 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 -----------------------------------------------------------------------------------------*/
 #define TIMER_VALUE_NODE_HELLO_CHECK	60			//节点Hello检测
 #define MAX_VALUE_HELLO_CHECK_TIMES 5				//hello检测的次数
+
+/*---------------------------------------------------------------------------------------
+//ian检测间隔时间
+-----------------------------------------------------------------------------------------*/
+#define VALUE_IAN_CHECK_TIME 60
 
 /*---------------------------------------------------------------------------------------
 //curl连接服务器超时时间（秒）

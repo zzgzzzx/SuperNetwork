@@ -29,6 +29,12 @@ typedef struct
 	ndInt16 LogDayNum;		//本地日志的存储的天数(天);
 }SLogConf, *pSLogConf;
 
+typedef struct
+{
+	  ndBool bFlag;
+}SShareMemFlag;
+
+
  /**
   ******************************************************************************
   * @brief	 server list inform structure
@@ -86,7 +92,7 @@ typedef struct
  typedef struct
 {
 	 //vpn超级节点的IP地址
-	 ndString	 sSuperNodeIP;
+	 ndString	 sSuperNodeHost;
 	 //vpn超级节点的端口号
 	 ndInt16 iSuperNodePort;
 }SSupperNode;
@@ -161,6 +167,8 @@ typedef struct
     ndUInt32 	iVerCode;
 	//MD5校验值
     ndString	sMD5;
+	//文件大小
+	ndInt32		iSize;
 	//下载的URL链接地址
     list<ndString> mDownLodURL;
 }SNodeCKSt;
@@ -169,6 +177,8 @@ typedef struct
 {
 	//MD5校验值
     ndString	sMD5;
+	//文件大小
+	ndInt32		iSize;	
 	//下载的URL链接地址
     list<ndString> mDownLodURL;
 }SUPDeamonCKSt;
@@ -178,6 +188,8 @@ typedef struct
 {
 	//MD5校验值
     ndString	sMD5;
+	//文件大小
+	ndInt32		iSize;	
 	//下载的URL链接地址
     list<ndString> mDownLodURL;
 }SEdgeCKSt;
@@ -186,6 +198,8 @@ typedef struct
 {
 	//MD5校验值
     ndString	sMD5;
+	//文件大小
+	ndInt32		iSize;	
 	//下载的URL链接地址
     list<ndString> mDownLodURL;
 }SIPTableCKSt;

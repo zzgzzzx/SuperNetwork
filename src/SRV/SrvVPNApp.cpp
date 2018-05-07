@@ -42,7 +42,7 @@ CSrvVPNApp::~CSrvVPNApp()
 *********************************************************/
 void CSrvVPNApp::ShowVersion()
 {
-	AfxWriteDebugLog("SuperVPN run at [CSuperVPNApp::InitApplication] services node ver=[%d]", SUPER_VPN_CLIENT_VER_SERVER);
+	AfxWriteDebugLog("SuperVPN run at [CSrvVPNApp::ShowVersion] services node ver=[%d]", SUPER_VPN_CLIENT_VER_SERVER);
 }
 
 /*********************************************************
@@ -76,14 +76,32 @@ ndStatus CSrvVPNApp::RunEnvCheck(bool ifOnlyCheckUpgrade)
 *********************************************************/
 bool CSrvVPNApp::InitSystem(bool ifOnlyCheckUpgrade)
 {
+	AfxWriteDebugLog("SuperVPN run at [CSrvVPNApp::InitSystem] >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+
 	if (!CSuperVPNApp::InitSystem(ifOnlyCheckUpgrade)) return false;
 	
 	//定时重启检测
+	AfxWriteDebugLog("SuperVPN run at [CSrvVPNApp::InitSystem] begin add restart timer");
 	if(mPNode->GetNodeInform().lRestartTime > 0)
 		AfxInsertSingleTimer(TIMER_ID_NODE_RESTART_CHECK, mPNode->GetNodeInform().lRestartTime, NodeRestartFunc);	
 	else
 		AfxInsertSingleTimer(TIMER_ID_NODE_RESTART_CHECK, 24*3600, NodeRestartFunc);	
+	
+	AfxWriteDebugLog("SuperVPN run at [CSrvVPNApp::InitSystem] begin add iancheck timer");
+	AfxInsertCircleTimer(TIMER_ID_NODE_IAN_CHECK, VALUE_IAN_CHECK_TIME, IanCheckFunc);	
 
 	return true;
+}
+
+/*********************************************************
+函数说明：系统数据初始化
+入参说明：
+出参说明：
+返回值  ：
+*********************************************************/
+void CSrvVPNApp::IanCheckFunc(ndULong param)
+{
+	CNodeSrv *pNodeSrv = dynamic_cast<CNodeSrv*> (AfxGetVPNNode());
+	pNodeSrv->IanCheck();
 }
 

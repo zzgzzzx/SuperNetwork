@@ -358,43 +358,6 @@ void AfxWriteDebugLog(char *Format,...)
 }
 
 /*********************************************************
-函数说明：获取本机所有网卡的名称，包括未启用
-入参说明：
-出参说明：
-返回值  ：返回网卡的数目
-*********************************************************/
-#define isspace(c) ((((c) == ' ') || (((unsigned int)((c) - 9)) <= (13 - 9))))
-
-static char *get_name(char *name, char *p)
-{
-	while (isspace(*p))
-		p++;
-	while (*p) {
-		if (isspace(*p))
-			break;
-		if (*p == ':') {	/* could be an alias */
-			char *dot = p, *dotname = name;
-
-			*name++ = *p++;
-			while (isdigit(*p))
-				*name++ = *p++;
-			if (*p != ':') {	/* it wasn't, backup */
-				p = dot;
-				name = dotname;
-			}
-			if (*p == '\0')
-				return NULL;
-			p++;
-			break;
-		}
-		*name++ = *p++;
-	}
-	*name++ = '\0';
-
-	return p;
-}
-
-/*********************************************************
 函数说明：文件是否存在检测
 入参说明：
 出参说明：
@@ -755,3 +718,67 @@ StrVector AfxStrTokenize(const string& src,const string& tok,int num,bool trim, 
 
 	return v; 
 }
+
+/*********************************************************
+函数说明：获取本机所有网卡的名称，包括未启用
+入参说明：
+出参说明：
+返回值  ：返回网卡的数目
+*********************************************************/
+#define isspace(c) ((((c) == ' ') || (((unsigned int)((c) - 9)) <= (13 - 9))))
+
+static char *get_name(char *name, char *p)
+{
+	while (isspace(*p))
+		p++;
+	while (*p) {
+		if (isspace(*p))
+			break;
+		if (*p == ':') {	/* could be an alias */
+			char *dot = p, *dotname = name;
+
+			*name++ = *p++;
+			while (isdigit(*p))
+				*name++ = *p++;
+			if (*p != ':') {	/* it wasn't, backup */
+				p = dot;
+				name = dotname;
+			}
+			if (*p == '\0')
+				return NULL;
+			p++;
+			break;
+		}
+		*name++ = *p++;
+	}
+	*name++ = '\0';
+
+	return p;
+}
+
+int AfxGetAllIfName(set<string> &vIFName)
+{
+	FILE *fh;
+	char buf[512];
+
+	if ((fh = fopen(PATH_PROCNET_DEV, "r")) == NULL) return 0;
+
+	fgets(buf, sizeof buf, fh);	/* eat line */
+	fgets(buf, sizeof buf, fh);	/* eat line */
+
+	while (fgets(buf, sizeof buf, fh)) 
+	{
+		char name[128];
+		get_name(name, buf);
+
+		if (strncmp(name, "ian", 3)) continue;
+		if (strchr(name, '.') != NULL) continue;
+
+		vIFName.insert(name);
+	}
+
+	fclose(fh);
+
+	return vIFName.size();
+}
+

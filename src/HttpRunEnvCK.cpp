@@ -118,6 +118,10 @@ ndStatus CHttpRunEvnCK::AnalysisCheckRsp()
 					cJSON_GetObjectItem(objType, "md5")->valuestring != NULL)
 			        mRunEnvCK.node.sMD5 = cJSON_GetObjectItem(objType, "md5")->valuestring;	
 
+			    if(cJSON_GetObjectItem(objType, "size") != NULL &&
+					cJSON_GetObjectItem(objType, "size")->valueint != NULL)
+			        mRunEnvCK.node.iSize= cJSON_GetObjectItem(objType, "size")->valueint;					
+
 			       
 			    cJSON *URLS = cJSON_GetObjectItem(objType, "download");
 			    if(URLS != NULL)
@@ -145,6 +149,10 @@ ndStatus CHttpRunEvnCK::AnalysisCheckRsp()
 			    if(cJSON_GetObjectItem(objType, "md5") != NULL &&
 					cJSON_GetObjectItem(objType, "md5")->valuestring != NULL)
 			        mRunEnvCK.deamon.sMD5 = cJSON_GetObjectItem(objType, "md5")->valuestring;	
+
+			    if(cJSON_GetObjectItem(objType, "size") != NULL &&
+					cJSON_GetObjectItem(objType, "size")->valueint != NULL)
+			        mRunEnvCK.deamon.iSize= cJSON_GetObjectItem(objType, "size")->valueint;					
 
 			       
 			    cJSON *URLS = cJSON_GetObjectItem(objType, "download");
@@ -174,6 +182,10 @@ ndStatus CHttpRunEvnCK::AnalysisCheckRsp()
 					cJSON_GetObjectItem(objType, "md5")->valuestring != NULL)
 			        mRunEnvCK.edge.sMD5 = cJSON_GetObjectItem(objType, "md5")->valuestring;	
 
+			    if(cJSON_GetObjectItem(objType, "size") != NULL &&
+					cJSON_GetObjectItem(objType, "size")->valueint!= NULL)
+			        mRunEnvCK.edge.iSize= cJSON_GetObjectItem(objType, "size")->valueint;						
+
 			       
 			    cJSON *URLS = cJSON_GetObjectItem(objType, "download");
 			    if(URLS != NULL)
@@ -201,6 +213,10 @@ ndStatus CHttpRunEvnCK::AnalysisCheckRsp()
 					cJSON_GetObjectItem(objType, "md5")->valuestring != NULL)
 			        mRunEnvCK.iptable.sMD5 = cJSON_GetObjectItem(objType, "md5")->valuestring;	
 
+			    if(cJSON_GetObjectItem(objType, "size") != NULL &&
+					cJSON_GetObjectItem(objType, "size")->valueint != NULL)
+			        mRunEnvCK.iptable.iSize= cJSON_GetObjectItem(objType, "size")->valueint;					
+
 			       
 			    cJSON *URLS = cJSON_GetObjectItem(objType, "download");
 			    if(URLS != NULL)
@@ -220,7 +236,13 @@ ndStatus CHttpRunEvnCK::AnalysisCheckRsp()
 					}	       
 			    }		
 			}		
+        }else{
+        	cJSON_Delete(root);
+			return ND_ERROR_INVALID_RESPONSE;
         }
+    }else{
+        cJSON_Delete(root);
+		return ND_ERROR_INVALID_RESPONSE;    
     }
  	cJSON_Delete(root);
 
@@ -304,22 +326,22 @@ ndStatus CHttpRunEvnCK::EdgeCheck()
 		{
 			if(strcasecmp(fileMD5.c_str(), mRunEnvCK.edge.sMD5.c_str()))
 			{
-				AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::EdgeCheck] MD5 value isn't same, must upgrade\n");
+				AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::IANCheck] MD5 value isn't same, must upgrade\n");
 			}
 			else return ND_SUCCESS;
 		}
 		else
 		{
-			AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::EdgeCheck] Get MD5 ERROR\n");
+			AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::IANCheck] Get MD5 ERROR\n");
 		}
 	}
 
 	//增加先清除edge
 	AfxCleanAllEdge();
 
-	ndStatus ret = Download(EDGE_EXE_PATH_NAME, mRunEnvCK.edge.mDownLodURL, mRunEnvCK.edge.sMD5);
+	ndStatus ret = Download(EDGE_EXE_PATH_NAME, mRunEnvCK.edge.mDownLodURL, mRunEnvCK.edge.sMD5, mRunEnvCK.edge.iSize);
     if(ret != ND_SUCCESS){
-        AfxWriteDebugLog("SuperVPN run at[CHttpRunEvnCK::EdgeCheck] Download edge command Err ret=[%d]", ret);
+        AfxWriteDebugLog("SuperVPN run at[CHttpRunEvnCK::IANCheck] Download edge command Err ret=[%d]", ret);
         return ret;
     }
 
@@ -354,10 +376,9 @@ ndStatus CHttpRunEvnCK::CheckSuperVPNCheck()
 		{
 			AfxWriteDebugLog("SuperVPN run at [CHttpRunEvnCK::CheckSuperVPNCheck] Get MD5 ERROR\n");
 		}*/
-	}
-		
+	}		
 
-	ndStatus ret = Download(CHECK_VPN_EXE_PATH_NAME, mRunEnvCK.deamon.mDownLodURL, mRunEnvCK.deamon.sMD5);
+	ndStatus ret = Download(CHECK_VPN_EXE_PATH_NAME, mRunEnvCK.deamon.mDownLodURL, mRunEnvCK.deamon.sMD5, mRunEnvCK.deamon.iSize);
     if(ret != ND_SUCCESS){
         AfxWriteDebugLog("SuperVPN run at[CHttpRunEvnCK::DeamonCheck] Download CheckSuperVPN command Err ret=[%d]", ret);
         return ret;
@@ -396,7 +417,7 @@ ndStatus CHttpRunEvnCK::IPTableCheck()
 		return ND_SUCCESS;
 	}
 
-	ndStatus ret = Download("/usr/bin/iptables", mRunEnvCK.iptable.mDownLodURL, mRunEnvCK.iptable.sMD5);
+	ndStatus ret = Download("/usr/bin/iptables", mRunEnvCK.iptable.mDownLodURL, mRunEnvCK.iptable.sMD5, mRunEnvCK.iptable.iSize);
     if(ret != ND_SUCCESS){
         AfxWriteDebugLog("SuperVPN run at[CHttpRunEvnCK::IPTableCheck] Download iptable command Err ret=[%d]", ret);
         return ret;
@@ -427,7 +448,7 @@ ndStatus CHttpRunEvnCK::NodeCheck()
 	}
 	
 	//下载新版本
-    ndStatus ret = Download(VPN_UPGRADE_TEMP_FILE_NAME, mRunEnvCK.node.mDownLodURL, mRunEnvCK.node.sMD5);
+    ndStatus ret = Download(VPN_UPGRADE_TEMP_FILE_NAME, mRunEnvCK.node.mDownLodURL, mRunEnvCK.node.sMD5, mRunEnvCK.node.iSize);
     if(ret != ND_SUCCESS){
         AfxWriteDebugLog("SuperVPN run at[CHttpRunEvnCK::NodeCheck] DownloadNewVersion Err ret=[%d]", ret);
         return ret;
@@ -464,7 +485,7 @@ ndStatus CHttpRunEvnCK::NodeCheck()
 出参说明：无
 返回值  ：无
 *********************************************************/
-ndStatus CHttpRunEvnCK::Download(ndString filename, list<ndString> urls, ndString md5)
+ndStatus CHttpRunEvnCK::Download(ndString filename, list<ndString> urls, ndString md5, ndInt32 size)
 {
 	ndStatus ret = ND_ERROR_INVALID_PARAM;
     CHttpFileDown FileDown;
@@ -473,7 +494,7 @@ ndStatus CHttpRunEvnCK::Download(ndString filename, list<ndString> urls, ndStrin
     downloadFileReqSt.fFile = NULL;
     downloadFileReqSt.iOffset = 0;
     downloadFileReqSt.iCRC = 0;
-    downloadFileReqSt.iSize = 0;
+    downloadFileReqSt.iSize = size;
 
 	list<ndString>::iterator iterURL;
     for(iterURL=urls.begin(); iterURL!=urls.end(); iterURL++)
@@ -546,10 +567,10 @@ ndStatus CHttpRunEvnCK::BeginCheck(bool ifOnlyCheckUpgrade)
         return ret;
     }
 	//edge check
-	AfxWriteDebugLog("SuperVPN run at[CHttpRunEvnCK::BeginCheck] EdgeCheck");
+	AfxWriteDebugLog("SuperVPN run at[CHttpRunEvnCK::BeginCheck] IANCheck");
 	ret = EdgeCheck();
     if(ret != ND_SUCCESS){
-        AfxWriteDebugLog("SuperVPN run at[CHttpRunEvnCK::BeginCheck] EdgeCheck ret=[%d]", ret);
+        AfxWriteDebugLog("SuperVPN run at[CHttpRunEvnCK::BeginCheck] IANCheck ret=[%d]", ret);
         return ret;
     }
 	
@@ -573,7 +594,7 @@ ndStatus CHttpRunEvnCK::BeginCheck(bool ifOnlyCheckUpgrade)
 	if(AfxFileExist(VPN_EXE_PATH_NAME) == false)
 	{
 		//下载当前版本，一直需要下载到成功为止
-    	ndStatus ret = Download(VPN_EXE_PATH_NAME, mRunEnvCK.node.mDownLodURL, mRunEnvCK.node.sMD5);
+    	ndStatus ret = Download(VPN_EXE_PATH_NAME, mRunEnvCK.node.mDownLodURL, mRunEnvCK.node.sMD5, mRunEnvCK.node.iSize);
     	if(ret != ND_SUCCESS)
 		{
        	 	AfxWriteDebugLog("SuperVPN run at[CHttpRunEvnCK::BeginCheck] Download /usr/bin/SuperVPN Err ret=[%d]", ret);
