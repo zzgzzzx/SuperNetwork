@@ -43,6 +43,10 @@ public:
 	 ndString	sDeviceIP;
 	 //下游设备的Mac地址
 	 ndString	sDeviceMac;	
+	 //是否是已上线标识(这个标识只用于网关数据库配置身份标识)
+	 ndBool		ifOnline;
+	 //更新检测标识(这个标识只用于网关数据库配置身份标识)
+	 ndBool		ifUpdate;
 public:
 	SBindInform();
 	virtual ~SBindInform();

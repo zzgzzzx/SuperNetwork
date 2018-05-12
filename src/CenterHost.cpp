@@ -128,8 +128,8 @@ ndBool CCenterHost::GetNextHost(SServerInfo &host)
 			bakInfo = *mITBak;
 			curInfo = *mITCur;
 
-			AfxWriteDebugLog("SuperVPN run at [CCenterHost::GetNextHost] cur host=[%s]", curInfo.sSrvURL.c_str());
-			AfxWriteDebugLog("SuperVPN run at [CCenterHost::GetNextHost] bak host=[%s]", bakInfo.sSrvURL.c_str());
+			//AfxWriteDebugLog("SuperVPN run at [CCenterHost::GetNextHost] cur host=[%s]", curInfo.sSrvURL.c_str());
+			//AfxWriteDebugLog("SuperVPN run at [CCenterHost::GetNextHost] bak host=[%s]", bakInfo.sSrvURL.c_str());
 
 			if(curInfo.sSrvURL != bakInfo.sSrvURL)
 			{	

@@ -12,6 +12,7 @@
 #include "BaseApp.hpp"
 #include "HttpSrvThread.hpp"
 #include "IdentifySet.hpp"
+#include "ARPSet.hpp"
 
 //**********************************
 //CSrvVPNApp工程类                       
@@ -22,7 +23,9 @@ private:
 	//http服务
 	CHttpSrvThread mHttpSrv;
 	//身份识别管理类
-	CIdentifySet mIdentifySet;			
+	CIdentifySet mIdentifySet;
+	//ARP列表管理类
+	CARPSet mARPSet;
 public:
 
 	//系统数据初始化
@@ -34,8 +37,12 @@ public:
 	ndStatus RunEnvCheck(bool ifOnlyCheckUpgrade);	
 	//获取身份列表
 	CIdentifySet *GetIdentifySet();
-
+	//获取ARP列表
+	CARPSet *GetArpSet();
+	//获取设备类型
 	ndString GetDeviceType();
+	//arp检测
+	static void ArpCheckFunc(ndULong param);		
 
 	//构造函数
 	CUserVPNApp();

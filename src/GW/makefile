@@ -1,4 +1,4 @@
-BIN = ./bin/SuperVPN 
+BIN = ./bin/SuperGW
 CROSS = 
 CC = $(CROSS)gcc  
 CPP = $(CROSS)g++  

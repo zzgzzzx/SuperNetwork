@@ -105,6 +105,7 @@ ndStatus CHttpSrvNode::AnalysisNodeEnvSetRsp()
 	            if(supernode != NULL)
 	            {
 	                    cJSON *supernodelist = supernode->child;
+						sNode.mSupperNode.clear();
 
 	                    AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::AnalysisNodeEnvSetRsp] Get SuperNode Informs");
 	                    SSupperNode item;
@@ -115,12 +116,7 @@ ndStatus CHttpSrvNode::AnalysisNodeEnvSetRsp()
 	                            item.sSuperNodeHost = cJSON_GetObjectItem(supernodelist, "host")->valuestring;
 							AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::AnalysisNodeEnvSetRsp] supernode host=[%s]",item.sSuperNodeHost.c_str());
 
-	                        //if(cJSON_GetObjectItem(supernodelist, "nodeport") != NULL)
-	                        //    item.iSuperNodePort = cJSON_GetObjectItem(supernodelist, "nodeport")->valueint;
-							//AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::AnalysisNodeEnvSetRsp] supernode port=[%d]",item.iSuperNodePort);
-
 	                        sNode.mSupperNode.push_back(item);
-
 	                        supernodelist = supernodelist->next;
 	                    }
 	            }else
@@ -135,6 +131,8 @@ ndStatus CHttpSrvNode::AnalysisNodeEnvSetRsp()
 	                    cJSON *domainslist = domains->child;
 
 	                    AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::AnalysisNodeEnvSetRsp] Get Domains");
+						sNode.mDomainInforms.clear();
+						
 	                    SDomain item;
 	                    while(domainslist != NULL)
 	                    {
@@ -200,7 +198,7 @@ ndStatus CHttpSrvNode::MakeNodeEnvSetReq()
 
     //组装消息体
     root = cJSON_CreateObject();
-    AfxWriteDebugLog("SuperVPN run at [CHttpSrvNode::MakeNodeEnvSetReq] Make Init actions");
+    AfxWriteDebugLog("SuperVPN run at [CHttpSrvNode::MakeNodeEnvSetReq] Make EnvSet actions");
     cJSON_AddItemToObject(root, "actions", actions = cJSON_CreateArray());
 
     cJSON_AddItemToArray(actions, fmt = cJSON_CreateObject());

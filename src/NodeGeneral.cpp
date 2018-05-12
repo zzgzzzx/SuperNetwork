@@ -90,7 +90,7 @@ ndStatus CNodeGeneral::NodeInit()
 ndStatus CNodeGeneral::GetIP()
 {
 	ndStatus ret = mPHttpClient->GetIP();
-	AfxWriteDebugLog("SuperVPN run at [CNodeGeneral::NodeEnvSet] Node init return=[%d]", ret);
+	AfxWriteDebugLog("SuperVPN run at [CNodeGeneral::GetIP] GetIP return=[%d]", ret);
 	return ret;
 
 }

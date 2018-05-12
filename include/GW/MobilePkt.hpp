@@ -19,7 +19,7 @@ class CMobilePkt:public CPacket
 {
 protected:
 	//处理数据包
-	virtual bool DealWithPkt();
+	bool DealWithPkt();
 public:
 	//构造函数
 	CMobilePkt();
@@ -27,7 +27,7 @@ public:
 	~CMobilePkt();
 
 	//发送数据包
-	virtual bool SendPktToClient();
+	bool SendPktToClient();
 };
 
 #endif

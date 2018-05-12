@@ -270,29 +270,6 @@ namespace network {
 出参说明：
 返回值  ：
 *********************************************************/
-    bool CHttpClient::GetSubString(string sou, string bFlag, string eFlag, string &out)
-    {
-        int bPos = sou.find(bFlag);
-        if (bPos == string::npos) return false;
-
-        //AfxWriteDebugLog("SuperVPN run at [CHttpClient::GetSubString] SOU=[%s] bFlag=[%s] eFlag=[%s] bPOS=[%d]", sou.c_str(), bFlag.c_str(), eFlag.c_str(), bPos);
-
-        string tmp = sou.substr(bPos+bFlag.length(), sou.length()-bPos-bFlag.length());
-        int ePos = tmp.find(eFlag);
-        if (ePos == string::npos) return false;
-
-        out = tmp.substr(0, ePos);
-        //AfxWriteDebugLog("SuperVPN run at [CHttpClient::GetSubString] out=[%s]", out.c_str());
-
-        return true;
-    }
-
-/*********************************************************
-函数说明：
-入参说明：
-出参说明：
-返回值  ：
-*********************************************************/
     void CHttpClient::AnalysisAuthHeader(ndString &head)
     {
 

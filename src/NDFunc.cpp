@@ -83,6 +83,27 @@ CHelloSrvThread *AfxGetHelloSrv()
 }
 
 /*********************************************************
+函数说明：取子串
+入参说明：
+出参说明：
+返回值  ：
+*********************************************************/
+bool AfxGetSubString(string sou, string bFlag, string eFlag, string &out)
+{
+	int bPos = sou.find(bFlag);
+	if (bPos == string::npos) return false;
+	
+	string tmp = sou.substr(bPos+bFlag.length(), sou.length()-bPos-bFlag.length());
+	int ePos = tmp.find(eFlag);
+	if (ePos == string::npos) return false;
+	
+	out = tmp.substr(0, ePos);
+	
+	return true;
+}
+
+
+/*********************************************************
 函数说明：获取网关名称
 入参说明：
 出参说明：
@@ -100,12 +121,12 @@ ndBool AfxGetGatewayName(ndString &host)
 	
 	AfxWriteDebugLog("SuperVPN run at [AfxGetGatewayName] read /etc/hosts");
 	char buff[128]={0};
-	if (fread(buff, sizeof(char), 128, pFile) < 0)
+	if(!fgets(buff, sizeof buff, pFile))
 	{
 		AfxWriteDebugLog("SuperVPN run at [AfxGetGatewayName] read [%s] File Fail", HOST_FILE_NAME);
 		return false;
-
 	}
+	AfxvTrim(buff);
 	host = buff;
 	
 	fclose(pFile);	

@@ -116,7 +116,7 @@ ndStatus CHttpGeneral::MakeNodeGetIPReq()
 	mSrvURL = URL_NODE_GETIP;
     //组装消息体
     root = cJSON_CreateObject();
-    AfxWriteDebugLog("SuperVPN run at [CHttpSrvNode::MakeNodeGetIPReq] Make Init actions");
+    AfxWriteDebugLog("SuperVPN run at [CHttpSrvNode::MakeNodeGetIPReq] Make GetIP actions");
     cJSON_AddItemToObject(root, "actions", actions = cJSON_CreateArray());
 
     //========================set===========================================

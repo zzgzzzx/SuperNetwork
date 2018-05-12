@@ -69,7 +69,23 @@ ServiceInform::~ServiceInform()
 *********************************************************/
 SBindInform::SBindInform()
 {
-
+	//vpn服务节点的IP地址
+	sServiceIP = "";
+	//域id
+	sDomainID = "";
+	//域掩码
+	sDomainMask = "";
+	//域的key
+	sDomainKey = "";
+	//下游设备的特征码
+	sDeviceFlag = "";
+	//下游设备的IP地址
+	sDeviceIP = "";
+	//下游设备的Mac地址
+	sDeviceMac = ""; 
+	//是否是已上线标识(这个标识只用于网关数据库配置身份标识)
+	ifOnline = ND_FALSE;
+	ifUpdate = ND_FALSE;
 }
 
 /*********************************************************

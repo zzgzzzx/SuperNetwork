@@ -18,14 +18,16 @@ class MyDB
 public:  
     MyDB();  
     ~MyDB();  
-    bool initDB(string host, string user, string pwd, string db_name);  
+    bool initDB();  
+
+	bool IniFileCheck();	
     bool exeSQL(string sql);  
 
 	bool GetIndetifyMac(list<SBindInform> &ltSI);
 private:  
     MYSQL *connection;  
     MYSQL_RES *result;  
-    MYSQL_ROW row;  
+    MYSQL_ROW row;
 };  
   
 #endif 

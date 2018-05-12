@@ -9,7 +9,6 @@
 #include "IdentifySet.hpp"
 #include "NDFunc.hpp"
 #include "NodeUser.hpp"
-#include "MyDB.hpp"
 
 /*********************************************************
 函数说明：构造函数
@@ -52,78 +51,51 @@ bool CIdentifySet::DealRcvPkt(CUserHelloPkt *pkt)
 }
 
 /*********************************************************
-函数说明:从网关配置数据库中读取MAC与身份的识别码
+函数说明:向中心服务器请求下游设备身份对应的出口信息(上线)
 入参说明：
 出参说明：
 返回值  ：
 *********************************************************/
-bool CIdentifySet::ReadMacIdentifyFromGW(list<SBindInform> &ltSI)
+ndStatus CIdentifySet::BindIdentifyService(SBindInform sBindInform)
 {
-	MyDB myDB;
-	return myDB.GetIndetifyMac(ltSI);
-}
-
-/*********************************************************
-函数说明:从网关配置数据库中读取MAC与身份的识别码并处理业务
-入参说明：
-出参说明：
-返回值  ：
-*********************************************************/
-bool CIdentifySet::InitIdentifyFromGW()
-{
-	list<SBindInform> ltSI;
-
-	//=============================================================================
-	//1、获取下游设备MAC与身份ID对应的关系(从网关数据库获取),并进行数据的初始化
-	//读出Mac与身份ID
-	//=============================================================================
-	ReadMacIdentifyFromGW(ltSI);
-
-	//=============================================================================
-	//2、根据获取的MAC与身份ID，向中心请求身份ID与出口的对应关系(向中心服务器获取)
-	//=============================================================================
 	CNodeBase *pBase = AfxGetVPNNode();
-	if(pBase == NULL) return false;
+	if(pBase == NULL) return ND_ERROR_INVALID_PARAM;
 	
 	CNodeUser *pNode= dynamic_cast<CNodeUser *>(pBase);
-	if(pNode == NULL) return false;
-	pNode->BindIdentifyService(ltSI);
+	if(pNode == NULL) return ND_ERROR_INVALID_PARAM;
 
-	return true;
+	ndStatus ret = pNode->BindIdentifyService(sBindInform);
+	if(ret == ND_SUCCESS)
+	{
+		SBindInform *pBI = new SBindInform();
+		*pBI = sBindInform;
+		AddItem(sBindInform.sDeviceFlag, pBI);
+	}
+
+	return ret;	
 }
 
 /*********************************************************
-函数说明:从ARP表中读取MAC与IP对应关系
+函数说明:向中心服务器通知下游设备身份对应的出口信息释放(下线)
 入参说明：
 出参说明：
 返回值  ：
 *********************************************************/
-bool GetSubString(string sou, string bFlag, string eFlag, string &out)
+ndStatus CIdentifySet::UnBindIdentifyService(SBindInform sBindInform)
 {
-	int bPos = sou.find(bFlag);
-	if (bPos == string::npos) return false;
-
-	string tmp = sou.substr(bPos+bFlag.length(), sou.length()-bPos-bFlag.length());
-	int ePos = tmp.find(eFlag);
-	if (ePos == string::npos) return false;
-
-	out = tmp.substr(0, ePos);
-
-	return true;
-}
-
-bool CIdentifySet::ReadARP(list<SBindInform> &ltBSer)
-{
-	//bogon (192.168.204.254) at 00:50:56:f0:93:b4 [ether] on eth0
-	ndString ip, mac, arptable;
-
-	if (!AfxRunCmdGetResult("arp -a", arptable))
-	{
-		return false;
-	}
+	CNodeBase *pBase = AfxGetVPNNode();
+	if(pBase == NULL) return ND_ERROR_INVALID_PARAM;
 	
-	//GetSubString();
-	return false;
+	CNodeUser *pNode= dynamic_cast<CNodeUser *>(pBase);
+	if(pNode == NULL) return ND_ERROR_INVALID_PARAM;
+
+	ndStatus ret = pNode->UnBindIdentifyService(sBindInform);
+	if(ret == ND_SUCCESS)
+	{
+		DelItem(sBindInform.sDeviceFlag);
+	}
+
+	return ret;		
 }
 
 /*********************************************************
@@ -162,15 +134,12 @@ void CIdentifySet::SendHelloAndCheck()
 					iter++; 
 					continue;
 				}
-				//移除旧的
-				pNode->RemoveEdgeAndRoute(*iter);
-				//增加新的
-				pNode->BindIdentifyService(sBI);
 				BindInformItr iterBak = iter;
 				iterBak++;
 				pService->ltBindInform.erase(iter);
 				iter = iterBak;
 			}
+			
 			//判断是否下游设备都更新出口服务完成，如果全部完成，进行移除出口服务
 			if(pService->ltBindInform.size() <= 0)
 			{

@@ -164,7 +164,7 @@ void CNodeSrv::IanCheck()
 		if(liIFName.find(ianName) == liIFName.end())
 		{
 			char *ExecCMD = (char*)calloc(1, 1024);
-			sprintf(ExecCMD, "%s -d ian%d -a %s -s %s -c %s -k %s -l %s -r",
+			sprintf(ExecCMD, "%s -d ian%d -a %s -s %s -c %s -k %s -l %s -r -M 32768",
 						EDGE_EXE_PATH_NAME,
 						iNodeIndex,
 						domain.lNodeIP.c_str(),
@@ -224,7 +224,7 @@ ndStatus CNodeSrv::SetN2NVPNNetwork()
 		}
 
 		char *ExecCMD = (char*)calloc(1, 1024);
-		sprintf(ExecCMD, "%s -d ian%d -a %s -s %s -c %s -k %s -l %s -r",
+		sprintf(ExecCMD, "%s -d ian%d -a %s -s %s -c %s -k %s -l %s -r -M 32768",
 					EDGE_EXE_PATH_NAME,
 					iNodeIndex,
 					domain.lNodeIP.c_str(),

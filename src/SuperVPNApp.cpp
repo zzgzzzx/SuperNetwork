@@ -95,7 +95,7 @@ REINIT:
 	{
 		if(ifOnlyCheckUpgrade)
 		{
-			mShareMem.SetMemValue(ND_TRUE);
+			if (ret == ND_NEED_RESTART) mShareMem.SetMemValue(ND_TRUE);
 			return false;
 		}
 		

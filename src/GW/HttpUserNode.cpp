@@ -126,52 +126,53 @@ ndStatus CHttpUserNode::AnalysisNodeEnvSetRsp()
         {
             cJSON *repliceslist = replices->child;
 
-			sNode.lRestartTime = cJSON_GetObjectItem(repliceslist, "restarttime")->valueint;				
-            cJSON *supernode = cJSON_GetObjectItem(repliceslist, "supernode");
+			if(cJSON_GetObjectItem(repliceslist, "restarttime") != NULL)
+				sNode.lRestartTime = cJSON_GetObjectItem(repliceslist, "restarttime")->valueint;	
+			AfxWriteDebugLog("SuperVPN run at [CHttpUserNode::AnalysisNodeEnvSetRsp] restarttime=[%d]", sNode.lRestartTime);
+
+			if(cJSON_GetObjectItem(repliceslist, "billingmode") != NULL &&
+                           cJSON_GetObjectItem(repliceslist, "billingmode")->valuestring != NULL)
+				sNode.sBillingMode = cJSON_GetObjectItem(repliceslist, "billingmode")->valuestring;
+			AfxWriteDebugLog("SuperVPN run at [CHttpUserNode::AnalysisNodeEnvSetRsp] billing=[%s]", sNode.sBillingMode.c_str());
+			
+            cJSON *supernode = cJSON_GetObjectItem(repliceslist, "server");
             if(supernode != NULL)
             {
-                    cJSON *supernodelist = supernode->child;
+                cJSON *supernodelist = supernode->child;
 
-                    AfxWriteDebugLog("SuperVPN run at [CHttpUserNode::AnalysisNodeEnvSetRsp] Get SuperNode Informs");
-                    SSupperNode item;
-                    while(supernodelist != NULL)
-                    {
-                        if(cJSON_GetObjectItem(supernodelist, "nodeip") != NULL &&
-                           cJSON_GetObjectItem(supernodelist, "nodeip")->valuestring != NULL)
-                            item.sSuperNodeIP = cJSON_GetObjectItem(supernodelist, "nodeip")->valuestring;
-						AfxWriteDebugLog("SuperVPN run at [CHttpUserNode::AnalysisNodeEnvSetRsp] supernode ip=[%s]",item.sSuperNodeIP.c_str());
+                AfxWriteDebugLog("SuperVPN run at [CHttpUserNode::AnalysisNodeEnvSetRsp] Get SuperNode Informs");
+                SSupperNode item;
+                while(supernodelist != NULL)
+                {
+					if(cJSON_GetObjectItem(supernodelist, "host") != NULL &&
+					   cJSON_GetObjectItem(supernodelist, "host")->valuestring != NULL)
+						item.sSuperNodeHost = cJSON_GetObjectItem(supernodelist, "host")->valuestring;
 
-                        if(cJSON_GetObjectItem(supernodelist, "nodeport") != NULL)
-                            item.iSuperNodePort = cJSON_GetObjectItem(supernodelist, "nodeport")->valueint;
-						AfxWriteDebugLog("SuperVPN run at [CHttpUserNode::AnalysisNodeEnvSetRsp] supernode port=[%d]",item.iSuperNodePort);
-
-                        sNode.mSupperNode.push_back(item);
-
-                        supernodelist = supernodelist->next;
-                    }
+                    sNode.mSupperNode.push_back(item);
+                    supernodelist = supernodelist->next;
                 }
+            }
 
             cJSON *ippools = cJSON_GetObjectItem(repliceslist, "ippool");
             if(ippools != NULL)
             {
-                    cJSON *ippoolslist = ippools->child;
+                cJSON *ippoolslist = ippools->child;
 
-                    AfxWriteDebugLog("SuperVPN run at [CHttpUserNode::AnalysisNodeEnvSetRsp] Get IPPools");
-                    while(ippoolslist != NULL)
-                    {
-                        if(cJSON_GetObjectItem(ippoolslist, "begin") != NULL &&
-                           cJSON_GetObjectItem(ippoolslist, "begin")->valuestring != NULL)
-                            sNode.mIPPool.uBeginIP = inet_addr(cJSON_GetObjectItem(ippoolslist, "domainid")->valuestring);
-						AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::AnalysisNodeEnvSetRsp] beginip=[%s]", AfxHostIPToStr(sNode.mIPPool.uBeginIP));
+                AfxWriteDebugLog("SuperVPN run at [CHttpUserNode::AnalysisNodeEnvSetRsp] Get IPPools");
+                while(ippoolslist != NULL)
+                {
+                    if(cJSON_GetObjectItem(ippoolslist, "begin") != NULL &&
+                       cJSON_GetObjectItem(ippoolslist, "begin")->valuestring != NULL)
+                        sNode.mIPPool.uBeginIP = inet_addr(cJSON_GetObjectItem(ippoolslist, "domainid")->valuestring);
+					AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::AnalysisNodeEnvSetRsp] beginip=[%s]", AfxHostIPToStr(sNode.mIPPool.uBeginIP));
 
-                        if(cJSON_GetObjectItem(ippoolslist, "end") != NULL &&
-                           cJSON_GetObjectItem(ippoolslist, "end")->valuestring != NULL)
-                            sNode.mIPPool.uEndIP = inet_addr(cJSON_GetObjectItem(ippoolslist, "domainid")->valuestring);
-						AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::AnalysisNodeEnvSetRsp] endip=[%s]", AfxHostIPToStr(sNode.mIPPool.uEndIP));
+                    if(cJSON_GetObjectItem(ippoolslist, "end") != NULL &&
+                       cJSON_GetObjectItem(ippoolslist, "end")->valuestring != NULL)
+                        sNode.mIPPool.uEndIP = inet_addr(cJSON_GetObjectItem(ippoolslist, "domainid")->valuestring);
+					AfxWriteDebugLog("SuperVPN run at [CHttpGeneral::AnalysisNodeEnvSetRsp] endip=[%s]", AfxHostIPToStr(sNode.mIPPool.uEndIP));
 
-                        break;
-                    }
-			
+                    break;
+                }			
             }
         }
 

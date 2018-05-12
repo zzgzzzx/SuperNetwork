@@ -85,6 +85,10 @@ bool AfxKBWriteSSHKey(const char *filename);
 //清除所有的EDGE进程
 void AfxCleanAllEdge();
 
+//取子串
+bool AfxGetSubString(string sou, string bFlag, string eFlag, string &out);
+
+
 
 
 /*---------------------------------------------------------------------------------------
@@ -150,16 +154,19 @@ inline void AfxvLTrim(char *pcBuf)
 {
 	int iLen;
 	iLen=strlen(pcBuf);
+	char *tmp = (char *)malloc(sizeof(char)*(iLen+1));
 	while( iLen>0 )
 	{
 		if ((' '==pcBuf[0])||('\t'==pcBuf[0]))
 		{
-			strcpy(pcBuf,pcBuf+1);
+			strcpy(tmp, pcBuf+1);
+			strcpy(pcBuf, tmp);
 			iLen--;
 		}
 		else
 			break;
 	}
+	free(tmp);
 }
 
 //左右截空

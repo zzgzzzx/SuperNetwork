@@ -142,6 +142,13 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 #define NODEID_INI_FILE_SECT_ITEM_TASKTIME	"tasktime"
 #define NODEID_INI_FILE_SECT_ITEM_HOSTVERSION	"hostversion"
 
+#define DB_INI_FILE_NAME	"/etc/ian/db.ini"
+#define DB_INI_FILE_SECT_SETTINGS	"settings"
+#define DB_INI_FILE_SECT_ITEM_HOST	"hosts"
+#define DB_INI_FILE_SECT_ITEM_USER	"user"
+#define DB_INI_FILE_SECT_ITEM_PWD	"pwd"
+#define DB_INI_FILE_SECT_ITEM_DB		"dbname"
+
 
 /*---------------------------------------------------------------------------------------
 //升级文件的临时文件名
@@ -173,9 +180,11 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 
 
 //主机名的文件
-#define HOST_FILE_NAME	"/etc/hosts"
+#define HOST_FILE_NAME	"/etc/hostname"
 
 #define PATH_PROCNET_DEV		"/proc/net/dev"
+#define PATH_PROCNET_ARP		"/proc/net/arp"
+
 
 
 #define MD5_SIZE        16 
@@ -184,7 +193,7 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 /*---------------------------------------------------------------------------------------
 //服务节点VPN版本号
 -----------------------------------------------------------------------------------------*/
-#define SUPER_VPN_CLIENT_VER_SERVER 1006
+#define SUPER_VPN_CLIENT_VER_SERVER 1009
 
 /*---------------------------------------------------------------------------------------
 //用户网关节点VPN版本号
@@ -208,6 +217,7 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 #define TIMER_ID_NODE_HELLO_CHECK	0x0001			//hello检测检测
 #define TIMER_ID_NODE_RESTART_CHECK	0x0002			//restart检测检测
 #define TIMER_ID_NODE_IAN_CHECK	0x0003				//ian检测检测
+#define TIMER_ID_NODE_ARP_CHECK	0x0004				//ARP检测检测
 
 
 /*---------------------------------------------------------------------------------------
@@ -225,6 +235,11 @@ typedef ndChar DEBUG_EXPORT_TYPE;
 //ian检测间隔时间
 -----------------------------------------------------------------------------------------*/
 #define VALUE_IAN_CHECK_TIME 60
+
+/*---------------------------------------------------------------------------------------
+//ARP检测间隔时间
+-----------------------------------------------------------------------------------------*/
+#define VALUE_ARP_CHECK_TIME 15
 
 /*---------------------------------------------------------------------------------------
 //curl连接服务器超时时间（秒）

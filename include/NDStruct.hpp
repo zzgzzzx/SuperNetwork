@@ -34,6 +34,13 @@ typedef struct
 	  ndBool bFlag;
 }SShareMemFlag;
 
+ typedef struct
+ {
+	 //mac地址
+	 ndString mac;
+	 //ip地址
+	 ndString ip;
+ }SArp;
 
  /**
   ******************************************************************************
@@ -111,6 +118,8 @@ typedef struct
 	ndInt32		lHelloTime;
 	//RestartTime
 	ndInt32		lRestartTime;	
+	//计费模式
+	ndString	sBillingMode;
 	//超级结点的相关信息
 	vector<SSupperNode> mSupperNode;
 	//所属域的相关信息

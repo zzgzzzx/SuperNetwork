@@ -57,9 +57,6 @@ namespace network {
         //获取客户端key路径
         virtual ndString GetClientKeyPath();
 
-        //获取子串函数
-        bool GetSubString(string sou, string bFlag, string eFlag, string &out);
-
     public:
         /**
          * @brief HTTP/HTTPS POST/GET请求
